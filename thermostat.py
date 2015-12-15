@@ -38,7 +38,9 @@ GPIO.setmode(GPIO.BCM)
 GPIO.setwarnings(False)
 GPIO.setup(relayHeat, GPIO.OUT)
 GPIO.setup(relayCool, GPIO.OUT)
-database_name = '/home/pi/local/thermoPi/thermopi.db'
+config = ConfigParser.ConfigParser()
+config.read('owmapi.cfg')
+database_name = config.get('general','dbname')
 
 
 def updatedb(db, sql):
