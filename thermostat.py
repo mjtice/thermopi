@@ -8,11 +8,16 @@ import subprocess
 import datetime as dt
 from datetime import datetime
 import json
+import bson
 from bson import Binary, Code
 from bson.json_util import dumps
 import sqlite3
 import pyowm
 from booby import Model, fields
+from booby.fields import Field
+import booby.validators as builtin_validators
+import pymongo
+from pymongo import MongoClient
 
 os.system('modprobe w1-gpio')
 os.system('modprobe w1-therm')
@@ -64,6 +69,13 @@ def updatedb(db, sql):
         return results
 
 
+class DateTime(Field):
+    """:class:`Field` subclass with builtin `DateTime` validation."""
+
+    def __init__(self, *args, **kwargs):
+        super(DateTime, self).__init__(builtin_validators.DateTime(), *args, **kwargs)
+
+
 class WeatherCoordinates(Model):
     latitude = fields.Float()
     longitude = fields.Float()
@@ -79,8 +91,8 @@ class WeatherOutside(Model):
     wind_direction = fields.Integer()
     wind_speed = fields.Float()
     cloud_cover = fields.Integer()
-    sunrise = fields.Integer()
-    sunset = fields.Integer()
+    sunrise = DateTime()
+    sunset = DateTime()
 
 
 class WeatherInside(Model):
@@ -97,7 +109,8 @@ class ThermostatTrends(Model):
     """
     coord = fields.Embedded(WeatherCoordinates)
     name = fields.String()
-    date = fields.Integer()
+    observation_date = DateTime()
+    date = DateTime()
     outside = fields.Embedded(WeatherOutside)
     inside = fields.Embedded(WeatherInside)
 
@@ -175,8 +188,8 @@ class Weather(object):
                                 self.humidity(),
                                 self.wind_speed(),
                                 self.wind_direction(),
-                                self.sunrise,
-                                self.sunset,
+                                self.outsideSunrise,
+                                self.outsideSunset,
                                 self.currentIcon
                                 )
         updatedb(database_name, statement)
@@ -280,8 +293,8 @@ def log_event():
                                      wind_direction=outside.wind_direction(),
                                      wind_speed=outside.wind_speed(),
                                      cloud_cover=outside.clouds(),
-                                     sunrise=int(outside.sunrise()),
-                                     sunset=outside.sunset()
+                                     sunrise=dt.datetime.utcfromtimestamp(outside.sunrise()),
+                                     sunset=dt.datetime.utcfromtimestamp(outside.sunset())
                                      )
     inside_weather = WeatherInside(state=config['cycle_mode'],
                                    current_temperature=sensor.temperature(),
@@ -290,10 +303,23 @@ def log_event():
                                    )
     thermostat_trend = ThermostatTrends(coord=coordinates,
                                         name=outside.location_name(),
-                                        date=outside.observation_time(),
+                                        observation_date=dt.datetime.utcfromtimestamp(outside.observation_time()),
                                         outside=outside_weather,
-                                        inside=inside_weather
+                                        inside=inside_weather,
+                                        date=dt.datetime.utcnow()
                                         )
+    my_list = []
+    my_list.append(dict(thermostat_trend))
+
+    client = MongoClient('192.168.0.2', 27017) 
+    db = client.thermopi
+    collection = db.thermostat
+    try:
+        collection.insert_many(my_list)
+    except pymongo.errors.PyMongoError as e:
+        print "Unable to insert the document into mongo. %s" % e
+    
+    
 
 if __name__ == "__main__":
 
@@ -382,15 +408,15 @@ if __name__ == "__main__":
             print "SENSOR READ ERROR!"
 
         if temp is not None:
-            currentTemp = temp
+            current_temp = temp
             # Process based on day of the week
-            if currentTime.weekday() >=0 and currentTime.weekday() < 5:
+            if (currentTime.weekday() >= 0) and (currentTime.weekday() < 5):
                 # We're a weekday
                 if currentTime >= weekdayMorningOnTime and currentTime < weekdayMorningOffTime:
                     currentCycle = cycle['weekdaymorning']
                 if currentTime >= weekdayAfternoonOnTime and currentTime < weekdayAfternoonOffTime:
                     currentCycle = cycle['weekdayafternoon']
-            if currentTime.weekday() == 5 or currentTime.weekday() == 6:
+            if (currentTime.weekday() == 5) or (currentTime.weekday() == 6):
                 # We're a weekend
                 if currentTime >= weekdayMorningOnTime and currentTime < weekdayMorningOffTime:
                     currentCycle = cycle['weekendmorning']
