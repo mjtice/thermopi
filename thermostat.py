@@ -1,5 +1,5 @@
+## General
 import ConfigParser
-import RPi.GPIO as GPIO
 import urllib2
 import os
 import glob
@@ -8,45 +8,44 @@ import subprocess
 import datetime as dt
 from datetime import datetime
 import json
+
+## Gpio
+import RPi.GPIO as GPIO
+
+## Mongo
 import bson
 from bson import Binary, Code
 from bson.json_util import dumps
-import sqlite3
-import pyowm
-from booby import Model, fields
-from booby.fields import Field
-import booby.validators as builtin_validators
 import pymongo
 from pymongo import MongoClient
 
-os.system('modprobe w1-gpio')
-os.system('modprobe w1-therm')
+## Booby
+from booby import Model, fields
+from booby.fields import Field
+import booby.validators as builtin_validators
 
-base_dir = '/sys/bus/w1/devices/'
+## Eve
+from eve import Eve
+from eve_sqlalchemy import SQL
+from eve_sqlalchemy.validation import ValidatorSQL
 
-device_folder = glob.glob(base_dir + '28*')[0]
-device_file = device_folder + '/w1_slave'
+## sqlAlchemy
+from sqlalchemy import Column
+from sqlalchemy import DateTime
+from sqlalchemy import func
+from sqlalchemy import Integer
+from sqlalchemy import String
+from sqlalchemy import Numeric
+from sqlalchemy.ext.declarative import declarative_base
 
-# Cycle mappings
-cycle = {'weekdaymorning': 0,
-         'weekdayafternoon': 1,
-         'weekendmorning': 2,
-         'weekendafternoon': 3}
+## sqlite
+import sqlite3
 
-heating_on = False
-cooling_on = False
-fanOn = False
-weatherCounter = 0
-relayHeat = 24
-relayCool = 25
-GPIO.setmode(GPIO.BCM)
-GPIO.setwarnings(False)
-GPIO.setup(relayHeat, GPIO.OUT)
-GPIO.setup(relayCool, GPIO.OUT)
-config = ConfigParser.ConfigParser()
-config.read('owmapi.cfg')
-database_name = config.get('general','dbname')
+## Eve-SQLAlchemy
+from eve_sqlalchemy.decorators import registerSchema
 
+## pyOWM
+import pyowm
 
 def updatedb(db, sql):
     try:
@@ -67,6 +66,54 @@ def updatedb(db, sql):
     finally:
         conn.close()
         return results
+
+Base = declarative_base()
+class CommonColumns(Base):
+    __abstract__ = True
+    _created = Column(DateTime, default=func.now())
+    _updated = Column(DateTime,
+                      default=func.now(),
+                      onupdate=func.now())
+    _etag = Column(String)
+    _id = Column(Integer, primary_key=True, autoincrement=True)
+
+
+@registerSchema('configuration')
+class Configuration(CommonColumns):
+    __tablename__ = 'configuration'
+    key = Column(String(200))
+    value = Column(String(200))
+
+
+@registerSchema('threehour')
+class Threehour(CommonColumns):
+    __tablename__ = 'forecast_3h_weather'
+    day = Column(Integer)
+    icon = Column(String(200))
+    min_temp = Column(Numeric)
+    max_temp = Column(Numeric) 
+
+
+@registerSchema('sixday')
+class Sixday(CommonColumns):
+    __tablename__ = 'forecast_6d_weather'
+    day = Column(Integer)
+    icon = Column(String(200))
+    min_temp = Column(Numeric)
+    max_temp = Column(Numeric) 
+
+
+@registerSchema('current')
+class Current(CommonColumns):
+    __tablename__ = 'current_weather'
+    temperature = Column(Integer)
+    pressure = Column(Integer)
+    humidity = Column(Integer)
+    wind_speed = Column(Numeric)
+    wind_direction = Column(Integer)
+    sunrise = Column(Integer)
+    sunset = Column(Integer)
+    icon = Column(Integer)
 
 
 class DateTime(Field):
@@ -97,7 +144,7 @@ class WeatherOutside(Model):
 
 class WeatherInside(Model):
     unit = fields.String()
-    state = fields.Boolean()
+    state = fields.String()
     current_temperature = fields.Float()
     desired_temperature = fields.Integer()
     desired_variance = fields.Float()
@@ -284,7 +331,7 @@ class Weather(object):
         return self.time
 
 
-def log_event():
+def log_event(on_off_state):
     # Coordinates models
     coordinates = WeatherCoordinates(latitude=outside.latitude(), longitude=outside.longitude())
     outside_weather = WeatherOutside(temperature=outside.temperature(),
@@ -296,7 +343,8 @@ def log_event():
                                      sunrise=dt.datetime.utcfromtimestamp(outside.sunrise()),
                                      sunset=dt.datetime.utcfromtimestamp(outside.sunset())
                                      )
-    inside_weather = WeatherInside(state=config['cycle_mode'],
+    inside_weather = WeatherInside(unit=config['cycle_mode'],
+                                   state=on_off_state,
                                    current_temperature=sensor.temperature(),
                                    desired_temperature=desired_temperature,
                                    desired_variance=temp_variance
@@ -311,35 +359,156 @@ def log_event():
     my_list = []
     my_list.append(dict(thermostat_trend))
 
-    client = MongoClient('192.168.0.2', 27017) 
-    db = client.thermopi
-    collection = db.thermostat
     try:
         collection.insert_many(my_list)
     except pymongo.errors.PyMongoError as e:
         print "Unable to insert the document into mongo. %s" % e
     
     
+def time_period():
+    current_time = datetime.now()
+    configuration = parse_config()
+
+    weekday_morning_on = dt.time(int(configuration['weekday_morning_on'].split(':')[0]),
+                               int(configuration['weekday_morning_on'].split(':')[1]))
+    weekday_morning_off = dt.time(int(configuration['weekday_morning_off'].split(':')[0]),
+                                int(configuration['weekday_morning_off'].split(':')[1]))
+    weekday_afternoon_on = dt.time(int(configuration['weekday_afternoon_on'].split(':')[0]),
+                                 int(configuration['weekday_afternoon_on'].split(':')[1]))
+    weekday_afternoon_off = dt.time(int(configuration['weekday_afternoon_off'].split(':')[0]),
+                                  int(configuration['weekday_afternoon_off'].split(':')[1]))
+    weekday_evening_on = dt.time(int(configuration['weekday_evening_on'].split(':')[0]),
+                               int(configuration['weekday_evening_on'].split(':')[1]))
+    weekday_evening_off = dt.time(int(configuration['weekday_evening_off'].split(':')[0]),
+                                int(configuration['weekday_evening_off'].split(':')[1]))
+    weekend_morning_on = dt.time(int(configuration['weekend_morning_on'].split(':')[0]),
+                               int(configuration['weekend_morning_on'].split(':')[1]))
+    weekend_morning_off = dt.time(int(configuration['weekend_morning_off'].split(':')[0]),
+                                int(configuration['weekend_morning_off'].split(':')[1]))
+    weekend_afternoon_on = dt.time(int(configuration['weekend_afternoon_on'].split(':')[0]),
+                                 int(configuration['weekend_afternoon_on'].split(':')[1]))
+    weekend_afternoon_off = dt.time(int(configuration['weekend_afternoon_off'].split(':')[0]),
+                                  int(configuration['weekend_afternoon_off'].split(':')[1]))
+    weekend_evening_on = dt.time(int(configuration['weekend_evening_on'].split(':')[0]),
+                                 int(configuration['weekend_evening_on'].split(':')[1]))
+    weekend_evening_off = dt.time(int(configuration['weekend_evening_off'].split(':')[0]),
+                                  int(configuration['weekend_evening_off'].split(':')[1]))
+    weekday_morning_on_time = current_time.replace(hour=weekday_morning_on.hour,
+                                               minute=weekday_morning_on.minute,
+                                               second=weekday_morning_on.second)
+    weekday_morning_off_time = current_time.replace(hour=weekday_morning_off.hour,
+                                                minute=weekday_morning_off.minute,
+                                                second=weekday_morning_off.second)
+    weekday_afternoon_on_time = current_time.replace(hour=weekday_afternoon_on.hour,
+                                                 minute=weekday_afternoon_on.minute,
+                                                 second=weekday_afternoon_on.second)
+    weekday_afternoon_off_time = current_time.replace(hour=weekday_afternoon_off.hour,
+                                                  minute=weekday_afternoon_off.minute,
+                                                  second=weekday_afternoon_off.second)
+    weekday_evening_on_time = current_time.replace(hour=weekday_evening_on.hour,
+                                                 minute=weekday_evening_on.minute,
+                                                 second=weekday_evening_on.second)
+    weekday_evening_off_time = current_time.replace(hour=weekday_evening_off.hour,
+                                                  minute=weekday_evening_off.minute,
+                                                  second=weekday_evening_off.second)
+    weekend_morning_on_time = current_time.replace(hour=weekend_morning_on.hour,
+                                               minute=weekend_morning_on.minute,
+                                               second=weekend_morning_on.second)
+    weekend_morning_off_time = current_time.replace(hour=weekend_morning_off.hour,
+                                                minute=weekend_morning_off.minute,
+                                                second=weekend_morning_off.second)
+    weekend_afternoon_on_time = current_time.replace(hour=weekend_afternoon_on.hour,
+                                                 minute=weekend_afternoon_on.minute,
+                                                 second=weekend_afternoon_on.second)
+    weekend_afternoon_off_time = current_time.replace(hour=weekend_afternoon_off.hour,
+                                                  minute=weekend_afternoon_off.minute,
+                                                  second=weekend_afternoon_off.second)
+    weekend_evening_on_time = current_time.replace(hour=weekend_evening_on.hour,
+                                                 minute=weekend_evening_on.minute,
+                                                 second=weekend_evening_on.second)
+    weekend_evening_off_time = current_time.replace(hour=weekend_evening_off.hour,
+                                                  minute=weekend_evening_off.minute,
+                                                  second=weekend_evening_off.second)
+    if current_time >= weekday_morning_on_time and current_time < weekday_morning_off_time:
+        return 'morning'
+
+    if current_time >= weekday_afternoon_on_time and current_time < weekday_afternoon_off_time:
+        return 'afternoon'
+
+    if current_time >= weekday_evening_on_time and current_time < weekday_evening_off_time:
+        return 'evening'
+
+
+def parse_config():
+    # Get configuration
+    statement = 'SELECT key,value FROM configuration'
+    output = updatedb(database_name, statement)
+    config = {}
+
+    for row in output:
+        config[row['key']] = row['value']
+
+    return config
+
+# Configure GPIO for 1-wire
+os.system('modprobe w1-gpio')
+os.system('modprobe w1-therm')
+base_dir = '/sys/bus/w1/devices/'
+device_folder = glob.glob(base_dir + '28*')[0]
+device_file = device_folder + '/w1_slave'
+relayHeat = 24
+relayCool = 25
+GPIO.setmode(GPIO.BCM)
+GPIO.setwarnings(False)
+GPIO.setup(relayHeat, GPIO.OUT)
+GPIO.setup(relayCool, GPIO.OUT)
+
+# Default values
+heating_on = False
+cooling_on = False
+fan_on = False
+weatherCounter = 0
+
+# Configuration parser
+config = ConfigParser.ConfigParser()
+config.read('owmapi.cfg')
+database_name = config.get('general','dbname')
+
+# Eve config and variables
+SETTINGS = {
+    'SQLALCHEMY_DATABASE_URI': ('sqlite:///'+database_name),
+    'SQLALCHEMY_TRACK_MODIFICATIONS': True,
+    'RESOURCE_METHODS': ['GET', 'POST'],
+    'ITEM_METHODS': ['GET', 'PUT'],
+    'DOMAIN': {
+        'configuration': Configuration._eve_schema['configuration'],
+        'weather/current': Current._eve_schema['current'],
+        'weather/forecast/threehour': Threehour._eve_schema['threehour'],
+        'weather/forecast/sixday': Sixday._eve_schema['sixday'],
+    },
+}
+application = Eve(auth=None, settings=SETTINGS, data=SQL)
+
+# bind SQLAlchemy
+db = application.data.driver
+Base.metadata.bind = db.engine
+db.Model = Base
+db.create_all()
 
 if __name__ == "__main__":
+    # Start REST service
+    application.run(debug=False)
 
     # Initialize some variables at program startup
     last_run_time = datetime.now()
     next_run_time = datetime.now()
     runIntervalDelta = 0
+    log_counter = 0
 
     while True:
-        # Get configuration
-        statement = 'SELECT key,value FROM configuration'
-        output = updatedb(database_name, statement)
-        config = {}
 
-        for row in output:
-            config[row['key']] = row['value']
-
-        CurrentTemp = 0
-        currentTime = datetime.now()
-
+        current_time = datetime.now()
+        config = parse_config()
         if config['cycle_mode'] == 'heating':
             # Turn off the relay for the cooler
             GPIO.output(relayCool, GPIO.HIGH)
@@ -355,119 +524,104 @@ if __name__ == "__main__":
         else:
             weatherCounter += weatherCounter
 
-        desired_temperature = int(config['desired_temperature'])
-        weekdayMorningOn = dt.time(int(config['weekdayMorningOn'].split(':')[0]),
-                                   int(config['weekdayMorningOn'].split(':')[1]))
-        weekdayMorningOff = dt.time(int(config['weekdayMorningOff'].split(':')[0]),
-                                    int(config['weekdayMorningOff'].split(':')[1]))
-        weekdayAfternoonOn = dt.time(int(config['weekdayAfternoonOn'].split(':')[0]),
-                                     int(config['weekdayAfternoonOn'].split(':')[1]))
-        weekdayAfternoonOff = dt.time(int(config['weekdayAfternoonOff'].split(':')[0]),
-                                      int(config['weekdayAfternoonOff'].split(':')[1]))
-        weekendMorningOn = dt.time(int(config['weekendMorningOn'].split(':')[0]),
-                                   int(config['weekendMorningOn'].split(':')[1]))
-        weekendMorningOff = dt.time(int(config['weekendMorningOff'].split(':')[0]),
-                                    int(config['weekendMorningOff'].split(':')[1]))
-        weekendAfternoonOn = dt.time(int(config['weekendAfternoonOn'].split(':')[0]),
-                                     int(config['weekendAfternoonOn'].split(':')[1]))
-        weekendAfternoonOff = dt.time(int(config['weekendAfternoonOff'].split(':')[0]),
-                                      int(config['weekendAfternoonOff'].split(':')[1]))
+        # Look through the config.  If we enabled our MongoDB
+        # setting then we'll set that up here.
+        if config['mongo_enabled'] == 'true':
+            host = config['mongo_host'].split(':')
+            client = MongoClient(host[0], host[1])
+            db_collection = config['mongo_dbcollection'].split('/')
+            db = client.db_collection[0]
+            collection = db.db_collection[1]
+
+        previous_temperature = int(config['override_temperature'])
+        previous_period = time_period()
         temp_variance = float(config['temp_variance'])
 
-        weekdayMorningOnTime = currentTime.replace(hour=weekdayMorningOn.hour,
-                                                   minute=weekdayMorningOn.minute,
-                                                   second=weekdayMorningOn.second)
-        weekdayMorningOffTime = currentTime.replace(hour=weekdayMorningOff.hour,
-                                                    minute=weekdayMorningOff.minute,
-                                                    second=weekdayMorningOff.second)
-        weekdayAfternoonOnTime = currentTime.replace(hour=weekdayAfternoonOn.hour,
-                                                     minute=weekdayAfternoonOn.minute,
-                                                     second=weekdayAfternoonOn.second)
-        weekdayAfternoonOffTime = currentTime.replace(hour=weekdayAfternoonOff.hour,
-                                                      minute=weekdayAfternoonOff.minute,
-                                                      second=weekdayAfternoonOff.second)
-        weekendMorningOnTime = currentTime.replace(hour=weekendMorningOn.hour,
-                                                   minute=weekendMorningOn.minute,
-                                                   second=weekendMorningOn.second)
-        weekendMorningOffTime = currentTime.replace(hour=weekendMorningOff.hour,
-                                                    minute=weekendMorningOff.minute,
-                                                    second=weekendMorningOff.second)
-        weekendAfternoonOnTime = currentTime.replace(hour=weekendAfternoonOn.hour,
-                                                     minute=weekendAfternoonOn.minute,
-                                                     second=weekendAfternoonOn.second)
-        weekendAfternoonOffTime = currentTime.replace(hour=weekendAfternoonOff.hour,
-                                                      minute=weekendAfternoonOff.minute,
-                                                      second=weekendAfternoonOff.second)
-
+       
         try:
             sensor = Sensor()
-            temp = sensor.temperature()
-        except KeyboardInterrupt:
-            GPIO.cleanup()
+            ambient_temperature = sensor.temperature()
         except:
+            GPIO.cleanup()
             print "SENSOR READ ERROR!"
 
-        if temp is not None:
-            current_temp = temp
-            # Process based on day of the week
-            if (currentTime.weekday() >= 0) and (currentTime.weekday() < 5):
-                # We're a weekday
-                if currentTime >= weekdayMorningOnTime and currentTime < weekdayMorningOffTime:
-                    currentCycle = cycle['weekdaymorning']
-                if currentTime >= weekdayAfternoonOnTime and currentTime < weekdayAfternoonOffTime:
-                    currentCycle = cycle['weekdayafternoon']
-            if (currentTime.weekday() == 5) or (currentTime.weekday() == 6):
-                # We're a weekend
-                if currentTime >= weekdayMorningOnTime and currentTime < weekdayMorningOffTime:
-                    currentCycle = cycle['weekendmorning']
-                if currentTime >= weekdayAfternoonOnTime and currentTime < weekdayAfternoonOffTime:
-                    currentCycle = cycle['weekendafternoon']
+        if ambient_temperature  is not None:
+            if log_counter >= 60:
+                log_event(False)
+                log_counter = 0
+            else:
+                log_counter = log_counter + 1
 
-            formated_temp = float('{0:0.1f}'.format(temp))
+            # Determine desired temperature based on what part of the day we're in
+            current_period = time_period()
+            if (current_time.weekday() >= 0) and (current_time.weekday() < 5):
+                # We're a weekday
+                if current_period == 'morning':
+                    if temperature_override != weekday_morning_temperature:
+                        desired_temperature = override_temperature
+                    else:
+                        desired_temperature = weekday_morning_temperature
+                if current_period == 'afternoon':
+                    desired_temperature = int(config['weekday_afternoon_temperature'])
+                if current_period == 'evening':
+                    desired_temperature = int(config['weekday_evening_temperature'])
+
+            if (current_time.weekday() == 5) or (current_time.weekday() == 6):
+                # We're a weekend
+                if current_period == 'morning':
+                    desired_temperature = int(config['weekend_morning_temperature'])
+                if current_period == 'afternoon':
+                    desired_temperature = int(config['weekend_afternoon_temperature'])
+                if current_period == 'evening':
+                    desired_temperature = int(config['weekend_evening_temperature'])
+
+            ambient_temperature = float('{0:0.1f}'.format(ambient_temperature))
 
             # Cycle rate here
             cycle_rate = int(config['cycle_rate'])
             cycle_interval = 60 / cycle_rate
             if config['cycle_mode'] == 'cooling':
                 # We're going to be cooling
-                if formated_temp > desired_temperature + temp_variance:
+                if ambient_temperature > desired_temperature + temp_variance:
                     if cooling_on == False:
-                        print "Temperature ({}) has increased above the defined variance ({}): {}".format(formated_temp,temp_variance,desired_temperature + temp_variance)
+                        print "Temperature ({}) has increased above the defined variance ({}): {}".format(ambient_temperature,temp_variance,desired_temperature + temp_variance)
                         print "Engaging ac"
                         GPIO.output(relayCool,GPIO.LOW)
                         cooling_on = True
                         last_run_time = dt.datetime.now()
                         next_run_time = dt.datetime.now()
-                        log_event()
-                elif formated_temp < desired_temperature - temp_variance:
+                        log_event(1)
+                elif ambient_temperature < desired_temperature - temp_variance:
                     if cooling_on == True:
-                        print "Temperature ({}) is within the defined variance ({}): {}".format(formated_temp,temp_variance,desired_temperature + temp_variance)
+                        print "Temperature ({}) is within the defined variance ({}): {}".format(ambient_temperature,temp_variance,desired_temperature + temp_variance)
                         print "Turning off ac"
                         GPIO.output(relayCool,GPIO.HIGH)
                         cooling_on = False
                         next_run_time = dt.timedelta(0,0,0,0,cycle_interval)
-                        log_event()
+                        log_event(0)
 
             if config['cycle_mode'] == 'heating':
                 # We're going to be heating
-                if formated_temp < desired_temperature - temp_variance:
+                if ambient_temperature < desired_temperature - temp_variance:
                     if heating_on == False:
-                        print "Temperature ({}) has decreased below the defined variance ({}): {}".format(formated_temp,temp_variance,desired_temperature - temp_variance)
-                        if datetime.now() > next_run_time:
+                        print "Temperature ({}) has decreased below the defined variance ({}): {}".format(ambient_temperature,temp_variance,desired_temperature - temp_variance)
+                        if datetime.now() > next_run_time or previous_temperature != desired_temperature:
                             print "Engaging furnace"
                             GPIO.output(relayHeat,GPIO.LOW)
                             heating_on = True
                             last_run_time = dt.datetime.now()
                             next_run_time = dt.datetime.now()
-                            log_event()
-                elif formated_temp > desired_temperature + temp_variance:
+                            log_event(1)
+                        else:
+                            print "Waiting until the next run time to engage heat: {}".format(next_run_time)
+                elif ambient_temperature > desired_temperature + temp_variance:
                     if heating_on == True:
-                        print "Temperature ({}) is within the defined variance ({}): {}".format(formated_temp,temp_variance,desired_temperature - temp_variance)
+                        print "Temperature ({}) is within the defined variance ({}): {}".format(ambient_temperature,temp_variance,desired_temperature - temp_variance)
                         print "Turning off heat"
                         GPIO.output(relayHeat,GPIO.HIGH)
                         heating_on = False
                         next_run_time = datetime.now() + dt.timedelta(minutes=cycle_interval)
-                        log_event()
+                        log_event(0)
 
             #print "Last runtime {} and next runtime {}".format(last_run_time,next_run_time)
 
