@@ -67,6 +67,13 @@ class Current(CommonColumns):
     icon = Column(Integer)
 
 
+@registerSchema('house')
+class House(CommonColumns):
+    __tablename__ = 'house_weather'
+    temperature = Column(Numeric)
+    humidity = Column(Integer)
+
+
 # Configuration parser
 config = ConfigParser.ConfigParser()
 config.read('thermostat.cfg')
@@ -76,15 +83,16 @@ database_name = config.get('general','dbname')
 SETTINGS = {
     'SQLALCHEMY_DATABASE_URI': ('sqlite:///'+database_name),
     'SQLALCHEMY_TRACK_MODIFICATIONS': True,
-    'IF_MATCH': True,
+    'IF_MATCH': False,
     'PAGINATION': False,
     'RESOURCE_METHODS': ['GET', 'POST', 'DELETE'],
     'ITEM_METHODS': ['GET', 'PUT'],
     'DOMAIN': {
-        'configuration': Configuration._eve_schema['configuration'],
-        'weather/current': Current._eve_schema['current'],
-        'weather/forecast/threehour': Threehour._eve_schema['threehour'],
-        'weather/forecast/sixday': Sixday._eve_schema['sixday'],
+        'rest/configuration': Configuration._eve_schema['configuration'],
+        'rest/weather/current': Current._eve_schema['current'],
+        'rest/weather/house': House._eve_schema['house'],
+        'rest/weather/forecast/threehour': Threehour._eve_schema['threehour'],
+        'rest/weather/forecast/sixday': Sixday._eve_schema['sixday'],
     },
 }
 application = Eve(auth=None, settings=SETTINGS, data=SQL)
