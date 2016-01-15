@@ -1,6 +1,6 @@
 ## General
 import ConfigParser
-import urllib2
+import requests
 import os
 import glob
 import time
@@ -47,26 +47,36 @@ from eve_sqlalchemy.decorators import registerSchema
 ## pyOWM
 import pyowm
 
-def updatedb(db, sql):
+def updatedb(method, endpoint, payload):
     try:
-        global results
-        conn = sqlite3.connect(db)
-        conn.row_factory = sqlite3.Row
-        c = conn.cursor()
-        c.execute(sql)
-        conn.commit()
-        columns = [i[0] for i in c.description]
-        results = [dict(zip(columns, row)) for row in c]
-        if results is None:
-            results = []
+        # Make a connection to the REST api running on the local host
+        url = 'http://localhost:5000'+endpoint
+        headers = {'Content-Type': 'application/json'}
+        if method == 'GET':
+            r = requests.get(url, data = payload)
+            results = r
+        if method == 'POST':
+            r = requests.post(url, headers=headers , data = json.dumps(payload))
+            results = None
+        if method == 'PUT':
+            r = requests.put(url, data = payload)
+            results = None
+        if method == 'DELETE':
+            r = requests.delete(url, data = payload)
+            results = None
 
-    except sqlite3.Error as e:
-        print "An error occurred:", e.args[0]
+        # Throw an exception if we get a non-200
+        r.raise_for_status()
 
-    finally:
-        conn.close()
-        return results
+    except requests.exceptions.HTTPError as e:
+        print e.code
+        print e.read() 
 
+    else:
+        if results is not None:
+            return results.json()
+
+'''
 Base = declarative_base()
 class CommonColumns(Base):
     __abstract__ = True
@@ -114,7 +124,7 @@ class Current(CommonColumns):
     sunrise = Column(Integer)
     sunset = Column(Integer)
     icon = Column(Integer)
-
+'''
 
 class DateTime(Field):
     """:class:`Field` subclass with builtin `DateTime` validation."""
@@ -194,7 +204,7 @@ class Weather(object):
     def __init__(self):
         try:
             config = ConfigParser.ConfigParser()
-            config.read('owmapi.cfg')
+            config.read('thermostat.cfg')
             api_key = config.get('general','api')
             zipcode = config.get('general','zipcode')
         except:
@@ -220,59 +230,50 @@ class Weather(object):
         self.time = w.get_reference_time()
 
         # Delete everything from the current_weather table
-        updatedb(database_name, 'DELETE FROM current_weather')
+        updatedb('DELETE','/weather/current',False)
+
         # Update the sqlite DB with the weather info
-        statement = ('''
-                    INSERT INTO current_weather
-                    (temperature, pressure,
-                     humidity, wind_speed, wind_direction,
-                     sunrise, sunset, icon
-                    )
-                    VALUES
-                    ({}, {}, {}, {}, {}, {}, {}, {})
-                    ''').format(self.temperature(),
-                                self.pressure(),
-                                self.humidity(),
-                                self.wind_speed(),
-                                self.wind_direction(),
-                                self.outsideSunrise,
-                                self.outsideSunset,
-                                self.currentIcon
-                                )
-        updatedb(database_name, statement)
+        payload = {}
+        payload['temperature'] = str(self.outsideTemp)
+        payload['pressure'] = self.outsidePressure
+        payload['humidity'] = self.outsideHumidity
+        payload['wind_speed'] = str(self.outsideWindSpeed)
+        payload['wind_direction'] = str(self.outsideWindDirection)
+        payload['sunrise'] = self.outsideSunrise
+        payload['sunset'] = self.outsideSunset
+        payload['icon'] = self.currentIcon
+
+        updatedb('POST', '/weather/current', payload)
 
         # Daily Forecast details
         fc = owm.daily_forecast(zipcode, limit=7)
         f = fc.get_forecast()
         # Remove all records from the table first.
-        updatedb(database_name, 'DELETE FROM forecast_6d_weather')
+        updatedb('DELETE','/weather/forecast/sixday',False)
         for weather in f:
             # Update the sqlite DB with the weather info
-            statement = ('''
-                    INSERT INTO forecast_6d_weather
-                    (day, icon, max_temp, min_temp)
-                    VALUES
-                    ({}, {}, {}, {})
-                    ''').format(time.strptime(weather.get_reference_time('iso'), '%Y-%m-%d %H:%M:%S+00')[6],
-                                weather.get_weather_code(),
-                                weather.get_temperature('fahrenheit')['max'],
-                                weather.get_temperature('fahrenheit')['min']
-                                )
-            updatedb(database_name, statement)
+            payload = {}
+            payload['day'] = time.strptime(weather.get_reference_time('iso'), '%Y-%m-%d %H:%M:%S+00')[6]
+            payload['icon'] = str(weather.get_weather_code())
+            payload['max_temp'] = str(weather.get_temperature('fahrenheit')['max'])
+            payload['min_temp'] = str(weather.get_temperature('fahrenheit')['min'])
+            updatedb('POST', '/weather/forecast/sixday', payload)
 
         # Remove all records from the table first.
-        updatedb(database_name, 'DELETE FROM forecast_3h_weather')
+        updatedb('DELETE','/weather/forecast/threehour',False)
         # Get immediate forecast
         localtime = dt.datetime.now()
         current_temp = self.outsideTemp
-        statement = ('''
-                 INSERT INTO forecast_3h_weather
-                         (day, icon, min_temp, max_temp)
-                         VALUES
-                         ({}, '', 0, {})
-                         ''').format(int((localtime.utcnow() - dt.datetime(1970, 1, 1)).total_seconds()), current_temp)
-        updatedb(database_name, statement)
-        # 3 Hour forecasts
+                         
+        # Update the sqlite DB with the weather info for the current time
+        payload = {}
+        payload['day'] = int((localtime.utcnow() - dt.datetime(1970, 1, 1)).total_seconds())
+        payload['icon'] = str('')
+        payload['max_temp'] = str(0)
+        payload['min_temp'] = str(current_temp)
+        updatedb('POST', '/weather/forecast/threehour', payload)
+
+        # 3 Hour forecasts. Now append the table with the rest of the forecast
         fc = owm.three_hours_forecast(zipcode)
         hours = [3, 6, 9, 12, 15, 18, 21, 24]
         for i in hours:
@@ -282,13 +283,13 @@ class Weather(object):
             try:
                 x = fc.get_weather_at(adjusted_epoch)
                 temperature = x.get_temperature('fahrenheit')['temp_max']
-                statement = ('''
-                         INSERT INTO forecast_3h_weather
-                         (day, icon, min_temp, max_temp)
-                         VALUES
-                         ({}, '', 0, {})
-                         ''').format(adjusted_epoch, temperature)
-                updatedb(database_name, statement)
+
+                payload = {}
+                payload['day'] = adjusted_epoch
+                payload['icon'] = str('')
+                payload['max_temp'] = str(0)
+                payload['min_temp'] = str(temperature)
+                updatedb('POST', '/weather/forecast/threehour', payload)
             except:
                 print "Skipping {}".format(i)
                 #pass
@@ -441,12 +442,11 @@ def time_period():
 
 def parse_config():
     # Get configuration
-    statement = 'SELECT key,value FROM configuration'
-    output = updatedb(database_name, statement)
+    output = updatedb('GET','/configuration',False)
     config = {}
 
-    for row in output:
-        config[row['key']] = row['value']
+    for item in output['_items']:
+        config[item['conf_key']] = item['conf_value']
 
     return config
 
@@ -471,13 +471,14 @@ weatherCounter = 0
 
 # Configuration parser
 config = ConfigParser.ConfigParser()
-config.read('owmapi.cfg')
+config.read('thermostat.cfg')
 database_name = config.get('general','dbname')
-
+'''
 # Eve config and variables
 SETTINGS = {
     'SQLALCHEMY_DATABASE_URI': ('sqlite:///'+database_name),
     'SQLALCHEMY_TRACK_MODIFICATIONS': True,
+    'IF_MATCH': False,
     'RESOURCE_METHODS': ['GET', 'POST'],
     'ITEM_METHODS': ['GET', 'PUT'],
     'DOMAIN': {
@@ -495,9 +496,10 @@ Base.metadata.bind = db.engine
 db.Model = Base
 db.create_all()
 
+application.run(debug=False)
+'''
 if __name__ == "__main__":
     # Start REST service
-    application.run(debug=False)
 
     # Initialize some variables at program startup
     last_run_time = datetime.now()
@@ -527,6 +529,7 @@ if __name__ == "__main__":
         # Look through the config.  If we enabled our MongoDB
         # setting then we'll set that up here.
         if config['mongo_enabled'] == 'true':
+            log_enabled = True
             host = config['mongo_host'].split(':')
             client = MongoClient(host[0], host[1])
             db_collection = config['mongo_dbcollection'].split('/')
@@ -547,8 +550,9 @@ if __name__ == "__main__":
 
         if ambient_temperature  is not None:
             if log_counter >= 60:
-                log_event(False)
-                log_counter = 0
+                if log_enabled == True:
+                    log_event(False)
+                    log_counter = 0
             else:
                 log_counter = log_counter + 1
 
@@ -590,7 +594,8 @@ if __name__ == "__main__":
                         cooling_on = True
                         last_run_time = dt.datetime.now()
                         next_run_time = dt.datetime.now()
-                        log_event(1)
+                        if log_enabled == True:
+                            log_event(1)
                 elif ambient_temperature < desired_temperature - temp_variance:
                     if cooling_on == True:
                         print "Temperature ({}) is within the defined variance ({}): {}".format(ambient_temperature,temp_variance,desired_temperature + temp_variance)
@@ -598,7 +603,8 @@ if __name__ == "__main__":
                         GPIO.output(relayCool,GPIO.HIGH)
                         cooling_on = False
                         next_run_time = dt.timedelta(0,0,0,0,cycle_interval)
-                        log_event(0)
+                        if log_enabled == True:
+                            log_event(0)
 
             if config['cycle_mode'] == 'heating':
                 # We're going to be heating
@@ -611,7 +617,8 @@ if __name__ == "__main__":
                             heating_on = True
                             last_run_time = dt.datetime.now()
                             next_run_time = dt.datetime.now()
-                            log_event(1)
+                            if log_enabled == True:
+                                log_event(1)
                         else:
                             print "Waiting until the next run time to engage heat: {}".format(next_run_time)
                 elif ambient_temperature > desired_temperature + temp_variance:
@@ -621,9 +628,10 @@ if __name__ == "__main__":
                         GPIO.output(relayHeat,GPIO.HIGH)
                         heating_on = False
                         next_run_time = datetime.now() + dt.timedelta(minutes=cycle_interval)
-                        log_event(0)
+                        if log_enabled == True:
+                            log_event(0)
 
-            #print "Last runtime {} and next runtime {}".format(last_run_time,next_run_time)
+            print "Last runtime {} and next runtime {}".format(last_run_time,next_run_time)
 
 
         time.sleep(1)
