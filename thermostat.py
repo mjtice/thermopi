@@ -38,9 +38,6 @@ from sqlalchemy import String
 from sqlalchemy import Numeric
 from sqlalchemy.ext.declarative import declarative_base
 
-## sqlite
-import sqlite3
-
 ## Eve-SQLAlchemy
 from eve_sqlalchemy.decorators import registerSchema
 
@@ -230,7 +227,7 @@ class Weather(object):
         self.time = w.get_reference_time()
 
         # Delete everything from the current_weather table
-        updatedb('DELETE','/weather/current',False)
+        updatedb('DELETE','/rest/weather/current',False)
 
         # Update the sqlite DB with the weather info
         payload = {}
@@ -243,13 +240,13 @@ class Weather(object):
         payload['sunset'] = self.outsideSunset
         payload['icon'] = self.currentIcon
 
-        updatedb('POST', '/weather/current', payload)
+        updatedb('POST', '/rest/weather/current', payload)
 
         # Daily Forecast details
         fc = owm.daily_forecast(zipcode, limit=7)
         f = fc.get_forecast()
         # Remove all records from the table first.
-        updatedb('DELETE','/weather/forecast/sixday',False)
+        updatedb('DELETE','/rest/weather/forecast/sixday',False)
         for weather in f:
             # Update the sqlite DB with the weather info
             payload = {}
@@ -257,10 +254,10 @@ class Weather(object):
             payload['icon'] = str(weather.get_weather_code())
             payload['max_temp'] = str(weather.get_temperature('fahrenheit')['max'])
             payload['min_temp'] = str(weather.get_temperature('fahrenheit')['min'])
-            updatedb('POST', '/weather/forecast/sixday', payload)
+            updatedb('POST', '/rest/weather/forecast/sixday', payload)
 
         # Remove all records from the table first.
-        updatedb('DELETE','/weather/forecast/threehour',False)
+        updatedb('DELETE','/rest/weather/forecast/threehour',False)
         # Get immediate forecast
         localtime = dt.datetime.now()
         current_temp = self.outsideTemp
@@ -271,7 +268,7 @@ class Weather(object):
         payload['icon'] = str('')
         payload['max_temp'] = str(0)
         payload['min_temp'] = str(current_temp)
-        updatedb('POST', '/weather/forecast/threehour', payload)
+        updatedb('POST', '/rest/weather/forecast/threehour', payload)
 
         # 3 Hour forecasts. Now append the table with the rest of the forecast
         fc = owm.three_hours_forecast(zipcode)
@@ -289,7 +286,7 @@ class Weather(object):
                 payload['icon'] = str('')
                 payload['max_temp'] = str(0)
                 payload['min_temp'] = str(temperature)
-                updatedb('POST', '/weather/forecast/threehour', payload)
+                updatedb('POST', '/rest/weather/forecast/threehour', payload)
             except:
                 print "Skipping {}".format(i)
                 #pass
@@ -442,7 +439,7 @@ def time_period():
 
 def parse_config():
     # Get configuration
-    output = updatedb('GET','/configuration',False)
+    output = updatedb('GET','/rest/configuration',False)
     config = {}
 
     for item in output['_items']:
@@ -512,11 +509,11 @@ if __name__ == "__main__":
         current_time = datetime.now()
         config = parse_config()
         if config['cycle_mode'] == 'heating':
-            # Turn off the relay for the cooler
+            # Turn off the relay for the cool
             GPIO.output(relayCool, GPIO.HIGH)
 
         if config['cycle_mode'] == 'cooling':
-            # Turn off the relay for the cooler
+            # Turn off the relay for the heat
             GPIO.output(relayHeat, GPIO.HIGH)
 
         # Sample the outside weather once every 60 seconds (or on the first run)
@@ -536,7 +533,7 @@ if __name__ == "__main__":
             db = client.db_collection[0]
             collection = db.db_collection[1]
 
-        previous_temperature = int(config['override_temperature'])
+        previous_temperature = int(config['temperature_override'])
         previous_period = time_period()
         temp_variance = float(config['temp_variance'])
 
@@ -544,6 +541,11 @@ if __name__ == "__main__":
         try:
             sensor = Sensor()
             ambient_temperature = sensor.temperature()
+            payload = {}
+            payload['temperature'] = str(ambient_temperature)
+            # Delete everything from the current_weather table
+            updatedb('DELETE','/rest/weather/house',False)
+            updatedb('POST', '/rest/weather/house', payload)
         except:
             GPIO.cleanup()
             print "SENSOR READ ERROR!"
@@ -562,7 +564,7 @@ if __name__ == "__main__":
                 # We're a weekday
                 if current_period == 'morning':
                     if temperature_override != weekday_morning_temperature:
-                        desired_temperature = override_temperature
+                        desired_temperature = temperature_override
                     else:
                         desired_temperature = weekday_morning_temperature
                 if current_period == 'afternoon':
