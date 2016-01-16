@@ -1,9 +1,3 @@
-<?php
-
-$dbFile = '/home/pi/local/thermoPi/thermopi.db';
-
-$db = new SQLite3($dbFile);
-?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -77,24 +71,10 @@ $db = new SQLite3($dbFile);
             <div class="container">
                 <div class="row">
                     <div class="col-md-8 col-md-offset-2">
-                        <?php
-                        $stmt = $db->prepare('SELECT value FROM configuration WHERE key = "desiredTemperature";');
-                        $result = $stmt->execute();
-                        $desiredTemp = $result->fetchArray();
-                        $stmt = $db->prepare('SELECT value FROM configuration WHERE key = "desiredTemperature";');
-                        $result = $stmt->execute();
-                        $currentTemp = $result->fetchArray();
-                        ?>
-                        <div>
-                         <h3 class="brand-heading" style="font-size: 48px; margin-bottom: 10px;">
-                         Current: <?php echo $currentTemp[0];?>
+                        <div id="current_temp">
                          </h3>
                         </div>
-                        <div id="desiredTemperature" name="desiredTemperature">
-                         <h3>
-                         Desired: <?php echo $desiredTemp[0];?>
-                         </h3>
-                         <input type="hidden" id="hdn_dt" value="<?php echo $desiredTemp[0];?>">
+                        <div id="desired_temp" name="desired_temp">
                         </div>
                        <span>
                         <div>
@@ -123,25 +103,41 @@ $db = new SQLite3($dbFile);
 
     <script>
     $(document).ready(function() {
+      $.get("processor.php?temperature_override=1", function(data) {
+        x = "<h3>Desired: "+data+"</h3>";
+        $("#desired_temp").html(x);
+      });
+      $.get("processor.php?temperature_house=1", function(data) {
+        x = "<h3 class=\"brand-heading\" style=\"font-size: 48px; margin-bottom: 10px;\">Current: "+
+            data+"</h3>";
+        $("#current_temp").html(x);
+      });
+
       $("#upArrow").click(function(){
-        $.post("processor.php", { increaseTemperature: 1 })
-        .success(function() {
+        $.ajax({
+          method: "POST",
+          url: "processor.php",
+          data: { changeTemperature: "+1" }
+        })
+       .done(function(data) {
          var newTemp = parseInt($("#hdn_dt").val()) + 1;
-         var x = "<h3>Desired: "+newTemp+"</h3>";
-         x = x + "<input type=\"hidden\" id=\"hdn_dt\" value=\""+newTemp+"\">";
-         $("#desiredTemperature").html(x)
+         var x = "<h3>Desired: "+data+"</h3>";
+         $("#desired_temp").html(x)
+        });
+       });
+
+       $("#downArrow").click(function(){
+        $.ajax({
+          method: "POST",
+          url: "processor.php",
+          data: { changeTemperature: "-1" }
         })
-        .error(function(data) { console.log(data); })
-      });
-      $("#downArrow").click(function(){
-        $.post("processor.php", { decreaseTemperature: 1 } )
-        .success(function() {
-         var newTemp = parseInt($("#hdn_dt").val()) - 1;
-         var x = "<h3>Desired: "+newTemp+"</h3>";
-         x = x + "<input type=\"hidden\" id=\"hdn_dt\" value=\""+newTemp+"\">";
-         $("#desiredTemperature").html(x)
-        })
-      });
+       .done(function(data) {
+         var newTemp = parseInt($("#hdn_dt").val()) + 1;
+         var x = "<h3>Desired: "+data+"</h3>";
+         $("#desired_temp").html(x)
+        });
+       });
     });
     </script>
 

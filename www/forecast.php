@@ -1,8 +1,9 @@
 <?php
-  $dbFile = '/home/pi/local/thermoPi/thermopi.db';
 
-  $db = new SQLite3($dbFile);
-  ?>
+$dbFile = '/home/pi/local/thermoPi/thermopi.db';
+
+$db = new SQLite3($dbFile);
+?>
 <!DOCTYPE html>
 <html lang="en">
     <head>
@@ -85,28 +86,15 @@ label, span, div {
       <div class="col-sm-6" style="width: 30%;">
     <div class="panel panel-default">
           <div class="panel-heading blueish">
-        <h3 class="panel-title">Today</h3>
+        <h3 class="panel-title">Now</h3>
       </div>
-          <?php
-                $sql = "select temperature,
-                 pressure,
-                 humidity,
-                 wind_speed,
-                 wind_direction,
-                 sunrise,
-                 sunset,
-                 icon from current_weather";
-                $results = $db->query($sql);
-                $row = $results->fetchArray();
-              ?>
-          <div class="panel-body light-grey" style="height: 150px;">
-        <h1 style="text-align:center; margin: 0;"> <i class="wi wi-owm-<?php echo $row[7];?>" style="font-size: 48px; vertical-align:middle;"></i>
-              <?php if ($row[0] < 55) { $label='info'; }elseif ($row[0] >=55 && $row[0] < 90) { $label='warning';}else{ $label='danger';}?>
-              <span class="label label-<?php echo $label;?>" id="currentTemperature" style="font-size:50%;"><?php echo $row[0];?></span> </h1>
+          <div class="panel-body light-grey" style="height: 150px;" id="current_weather">
+        <h1 style="text-align:center; margin: 0;"> <i class="wi" style="font-size: 48px; vertical-align:middle;" id="current_weather_icon"></i>
+              <span class="label" id="current_temperature" style="font-size:50%;"></span> </h1>
         <h4 style="padding-top: inherit; text-align:justified; margin:0; font-size:inherit;">
-              <div id="pressure">pressure: <?php echo $row[1];?></div>
-              <div id="humid">humidity: <?php echo $row[2];?>%</div>
-              <div id="wind">wind: <?php echo $row[3];?> mph</div>
+              <div id="current_pressure"></div>
+              <div id="current_humidity"></div>
+              <div id="current_wind"></div>
             </h4>
       </div>
         </div>
@@ -114,7 +102,7 @@ label, span, div {
       <div class="col-sm-6" style="width: 70%;">
     <div class="panel panel-default">
           <div class="panel-heading blueish">
-        <h3 class="panel-title">Forecast</h3>
+        <h3 class="panel-title">Today</h3>
       </div>
           <div id="weatherchart" class="panel-body" style="color: black; height: 150px;"> </div>
         </div>
@@ -126,17 +114,14 @@ label, span, div {
       <?php for($i=1;$i<6;$i++)
         {
               $dateNumber = date('w', strtotime("+$i days"));
-              $sql = "select day,icon,min_temp,max_temp from forecast_6d_weather WHERE day = $dateNumber";
-              $results = $db->query($sql);
-              $row = $results->fetchArray();
         ?>
       <div class="col-xs-2 col-centered">
     <div class="panel panel-default">
           <div class="panel-heading blueish">
         <h3 class="panel-title" style="text-align: center;"><?php echo date('D', strtotime("+$i days"));?></h3>
       </div>
-          <div class="panel-body light-grey" style="text-align: center;"> <i class="wi wi-owm-<?php echo $row[1];?>" style="font-size: x-large; padding-bottom: 10px;"></i><br>
-        <div id="forecast_<?php echo $i;?>"><?php echo round($row[2],0) ." | ". round($row[3],0);?></div>
+          <div class="panel-body light-grey" style="text-align: center;"> <i class="wi" style="font-size: x-large; padding-bottom: 10px;" id="icon_<?php echo $i;?>"></i><br>
+        <div id="forecast_<?php echo $i;?>"></div>
       </div>
         </div>
   </div>
@@ -154,44 +139,60 @@ label, span, div {
 <script src="js/jquery.easing.min.js"></script> 
 <!-- MorrisJS -->
 <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/morris.js/0.5.1/morris.css">
-<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js"></script> 
 <script src="//cdnjs.cloudflare.com/ajax/libs/raphael/2.1.0/raphael-min.js"></script> 
 <script src="//cdnjs.cloudflare.com/ajax/libs/morris.js/0.5.1/morris.min.js"></script> 
 <script>
-<?php
-  $sql = "select day,icon,min_temp,max_temp from forecast_3h_weather";
-  $results = $db->query($sql);
-?>
-new Morris.Area({
-  // ID of the element in which to draw the chart.
-  element: 'weatherchart',
-  // Chart data records -- each entry in this array corresponds to a point on
-  // the chart.
-  data: [
-<?php
-  while($row = $results->fetchArray())
-  {
-	  $chartDate = date('ga',$row[0]);
-	  # We just want the 'a' or 'p'
-	  $chartDate = preg_replace('/(a|p)m/','\\1',$chartDate);
-	  $chartTemp = $row[3];
-?>
-    { year: '<?php echo $chartDate;?>', value: <?php echo $chartTemp;?> },
-<?php
-              }
-?>
-  ],
-  // The name of the data record attribute that contains x-values.
-  xkey: 'year',
-  // A list of names of data record attributes that contain y-values.
-  ykeys: ['value'],
-  // Labels for the ykeys -- will be displayed when you hover over the
-  // chart.
-  labels: ['Temperature'],
-  hideHover: true,
-  parseTime: false,
-  lineColors: ['#FFCC66']
-});
+    $(document).ready(function() {
+      $.get("processor.php?weather_current=1", function(data) {
+        data = JSON.parse(data);
+        $("#current_weather_icon").addClass("wi-owm-"+data["_items"][0].icon)
+        var label;
+        if (data["_items"][0].temperature < 55) {
+          label = "info";
+        }else if ((data["_items"][0].temperature >= 55) && (data["_items"][0].temperature < 90)) {
+          label = "warning";
+        }else{
+          label = "danger";
+        }
+        $("#current_temperature").addClass("label-"+label);
+        $("#current_temperature").html(data["_items"][0].temperature);
+        $("#current_pressure").html("pressure: "+data["_items"][0].pressure);
+        $("#current_humidity").html("humidity: "+data["_items"][0].humidity+"%");
+        $("#current_wind").html("wind: "+data["_items"][0].wind_speed+" mph");
+      });
+      $.get("processor.php?weather_forecast=3", function(data) {
+        data = JSON.parse(data);
+        var ret = [];
+        $.each(data["_items"], function( key, value ) {
+          var date = new Date(value["day"] * 1000);
+          ret.push( { year: date.getHours()+"h", temp: value["max_temp"] } )
+        });
+            new Morris.Area({
+              // ID of the element in which to draw the chart.
+              element: 'weatherchart',
+              // Chart data records -- each entry in this array corresponds to a point on
+              // the chart.
+              data: ret,
+              // The name of the data record attribute that contains x-values.
+              xkey: 'year',
+              // A list of names of data record attributes that contain y-values.
+              ykeys: ['temp'],
+              // Labels for the ykeys -- will be displayed when you hover over the
+              // chart.
+              labels: ['Temperature'],
+              hideHover: true,
+              parseTime: false,
+              lineColors: ['#FFCC66']
+            });
+      });
+      $.get("processor.php?weather_forecast=6", function(data) {
+        data = JSON.parse(data);
+        $.each(data["_items"], function( key, value ) {
+          $("#icon_"+value["_id"]).addClass("wi-owm-"+value["icon"]);
+          $("#forecast_"+value["_id"]).html(Math.floor(value["min_temp"])+"|"+Math.floor(value["max_temp"]));
+        });
+      });
+    });
     </script>
 </body>
 </html>

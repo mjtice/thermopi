@@ -6,175 +6,724 @@ $db = new SQLite3($dbFile);
 ?>
 <!DOCTYPE html>
 <html lang="en">
-
-<head>
-
+  
+  <head>
+    
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="">
     <meta name="author" content="">
-
-    <title>Grayscale - Start Bootstrap Theme</title>
-
+    
+    <title>
+      Grayscale - Start Bootstrap Theme
+    </title>
+    
     <!-- Bootstrap Core CSS -->
     <link href="css/bootstrap.min.css" rel="stylesheet">
-
+    
     <!-- Custom CSS -->
     <link href="css/grayscale.css" rel="stylesheet">
-
+    
     <!-- Custom Fonts -->
     <link href="font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
     <link href="http://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic" rel="stylesheet" type="text/css">
     <link href="http://fonts.googleapis.com/css?family=Montserrat:400,700" rel="stylesheet" type="text/css">
+    
+    <!-- Include Timepicker -->
+    <link href="css/jquery.timepicker.css" rel="stylesheet">
 
-    <!-- Include Bootstrap Datepicker -->
-    <link href="css/bootstrap-timepicker.css" rel="stylesheet">
-
+    <!-- BootSwitch -->
+    <link href="css/bootstrap-switch.min.css" rel="stylesheet">
+    
+    <style>
+      .panel-info {
+        background-color: rgba(63, 56, 56, 0.59);
+    border-color: transparent;
+  }
+  label, span, div {
+    font-family: Montserrat, "Helvetica Neue", Helvetica, Arial, sans-serif;
+  }
+  /* centered columns styles */
+  .row-centered {
+    text-align:center;
+  }
+  .col-centered {
+    display:inline-block;
+    float:none;
+    /* reset the text-align */
+    text-align:left;
+    /* inline-block space fix */
+    margin-right:-4px;
+  }
+  .panel-heading.blueish {
+    background-color: #E5EDEF;
+  }
+  .panel-body.light-grey {
+    color: #808080;
+  }
+  a,a:hover,a:focus {
+    color: rgba(63, 56, 56, 0.59);
+  }
+    </style>
+    
     <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
     <!--[if lt IE 9]>
-        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
-        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
-    <![endif]-->
-
+<script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+<script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+<![endif]-->
+    
     <style>
       .panel-info{
-        background-color: rgba(63, 56, 56, 0.59);
+        background-color: rgba(132, 152, 160, 0.59);
         border-color: transparent;
       }
       label,span,div{
         font-family: Montserrat,"Helvetica Neue",Helvetica,Arial,sans-serif;
       }
+      .pager{
+        margin-top: 0px;
+        margin-bottom: 10px;
+      }
+      input[type="text"] {
+        text-align: center;
+      }
     </style>
-</head>
-
-<body id="page-top" data-spy="scroll" data-target=".navbar-fixed-top">
-
+  </head>
+  
+  <body id="page-top" data-spy="scroll" data-target=".navbar-fixed-top">
+    
     <!-- Navigation -->
     <nav class="navbar navbar-custom navbar-fixed-top" role="navigation">
-        <div class="container">
-            <div class="navbar-header">
-                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-main-collapse">
-                    <i class="fa fa-bars"></i>
-                </button>
-                <a class="navbar-brand page-scroll" href="index.php">
-                    <i class="fa fa-play-circle"></i>  <span class="light">Home</span>
-                </a>
-            </div>
-
-            <!-- Collect the nav links, forms, and other content for toggling -->
-            <div class="collapse navbar-collapse navbar-right navbar-main-collapse">
-                <ul class="nav navbar-nav">
-                    <!-- Hidden li included to remove active class from about link when scrolled up past about section -->
-                    <li class="hidden">
-                        <a href="#page-top"></a>
-                    </li>
-                    <li>
-                        <a class="page-scroll" href="settings.php">Settings</a>
-                    </li>
-                    <li>
-                        <a class="page-scroll" href="forecast.php">Forecast</a>
-                    </li>
-                </ul>
-            </div>
-            <!-- /.navbar-collapse -->
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-main-collapse">
+            <i class="fa fa-bars">
+            </i>
+          </button>
+          <a class="navbar-brand page-scroll" href="index.php">
+            <i class="fa fa-play-circle">
+            </i>
+            
+            <span class="light">
+              Home
+            </span>
+          </a>
         </div>
-        <!-- /.container -->
+        
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div class="collapse navbar-collapse navbar-right navbar-main-collapse">
+          <ul class="nav navbar-nav">
+            <!-- Hidden li included to remove active class from about link when scrolled up past about section -->
+            <li class="hidden">
+              <a href="#page-top">
+              </a>
+            </li>
+            <li>
+              <a class="page-scroll" href="settings.php">
+                Settings
+              </a>
+            </li>
+            <li>
+              <a class="page-scroll" href="forecast.php">
+                Forecast
+              </a>
+            </li>
+          </ul>
+        </div>
+        <!-- /.navbar-collapse -->
+      </div>
+      <!-- /.container -->
     </nav>
-
+    
     <!-- Intro Header -->
     <header class="intro">
-        <div class="intro-body">
-            <div class="container">
-                <div class="row">
-                    <div class="col-md-8 col-md-offset-2">
-<!-- Body -->
-          <div class="panel panel-info">
-            <div class="panel-body">
-              <div class="row">
-                <div class=" col-md-9 col-lg-9 "> 
-                  <table class="table ">
-                    <tbody>
-<tr>
-<td>
-<label for="basic-url">Weekday</label>
-</td>
-<td>
-<div class="input-group input-group-sm">
-  <span class="input-group-addon" id="basic-addon1">Morning</span>
-  <input type="text" class="form-control" placeholder="hh:mm" aria-describedby="basic-addon1" id="dt_wd_morning_on">
-  <span class="input-group-addon" id="basic-addon2">to</span>
-  <input type="text" class="form-control" placeholder="hh:mm" aria-describedby="basic-addon2" id="dt_wd_morning_off">
-</div>
-</td>
-<td>
-<div class="input-group input-group-sm">
-  <span class="input-group-addon" id="basic-addon3">Evening</span>
-  <input type="text" class="form-control" placeholder="hh:mm" aria-describedby="basic-addon3" id="dt_wd_evening_on">
-  <span class="input-group-addon" id="basic-addon4">to</span>
-  <input type="text" class="form-control" placeholder="hh:mm" aria-describedby="basic-addon4" id="dt_wd_evening_off">
-</div>
-</td>
-</tr>
-<tr>
-<td>
-<label for="basic-url">Weekend</label>
-</td>
-<td>
-<div class="input-group input-group-sm">
-  <span class="input-group-addon" id="basic-addon5">Morning</span>
-  <input type="text" class="form-control" placeholder="hh:mm" aria-describedby="basic-addon5" id="dt_we_morning_on">
-  <span class="input-group-addon" id="basic-addon6">to</span>
-  <input type="text" class="form-control" placeholder="hh:mm" aria-describedby="basic-addon6" id="dt_we_morning_off">
-</div>
-</td>
-<td>
-<div class="input-group input-group-sm">
-  <span class="input-group-addon" id="basic-addon1">Evening</span>
-  <input type="text" class="form-control" placeholder="hh:mm" aria-describedby="basic-addon1" id="dt_we_afternoon_on">
-  <span class="input-group-addon" id="basic-addon1">to</span>
-  <input type="text" class="form-control" placeholder="hh:mm" aria-describedby="basic-addon1" id="dt_we_afternoon_on">
-</div>
-</td>
-</tr>
-<tr>
-<td>
-<label for="basic-url">Misc</label>
-</td>
-<td>
-<label>foo</label>
-<input type="text"/>
-</td>
-</tr>
-
-                    </tbody>
-                  </table>
+      <div class="intro-body">
+        <div class="container">
+          <!-- begin Pagination Row -->
+          <div class="row" id="navigator">
+            <div class="col-md-8 col-md-offset-2">
+              <nav>
+                <ul class="pager">
+                  <input type="hidden" id="hdn_previous" value="0">
+                  <input type="hidden" id="hdn_current" value="1">
+                  <input type="hidden" id="hdn_next" value="2">
+                  <li class="previous">
+                    <a href="#" onclick="showDiv('previous'); return false">
+                      <span class="glyphicon glyphicon-arrow-left" aria-hidden="true">
+                      </span>
+                    </a>
+                  </li>
+                  <li id="pagination_header">
+                    Weekday
+                  </li>
+                  <li class="next">
+                    <a href="#" onclick="showDiv('next'); return false;">
+                      <span class="glyphicon glyphicon-arrow-right" aria-hidden="true">
+                      </span>
+                    </a>
+                  </li>
+                </ul>
+              </nav>
+            </div>
+          </div>
+          <!-- end Pagination Row -->
+          <!-- begin Weekday Row -->
+          <div class="row row-centered" id="weekday_schedule">
+            <div class="col-sm-4">
+              <div class="panel panel-default">
+                <div class="panel-heading blueish">
+                  <h3 class="panel-title">
+                    Morning
+                  </h3>
+                </div>
+                <div class="panel-body light-grey">
+                  
+                  
+                  <div class="input-group input-group-md">
+                    <input type="text" class="form-control" placeholder="begin" aria-describedby="basic-addon1" id="dt_wd_morning_on" name="weekday_morning_on">
+                  </div>
+                  <div class="input-group input-group-md" style="padding-top: inherit;">
+                    <input type="text" class="form-control" placeholder="end" aria-describedby="basic-addon2" id="dt_wd_morning_off" name="weekday_morning_off">
+                  </div>
+                  <div class="input-group input-group-md" style="padding-top: inherit; width: 100%;">
+                    <div id="temp_wd_morning_number" style="display: none;">
+                     <input type="number" class="form-control" placeholder="degrees" aria-describedby="basic-addon1" id="temp_wd_morning_number_input" min="60" max="85" style="text-align: center;" name="weekday_morning_temperature">
+                    </div>
+                    <div id="temp_wd_morning_label" style="display: block;  margin-bottom: -34px">
+                     <h2><span class="label label-info" id="temp_wd_morning_label_value">&nbsp;</span></h2>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
-<!-- /Body -->
-
-                    </div>
+            <div class="col-sm-4">
+              <div class="panel panel-default">
+                <div class="panel-heading blueish">
+                  <h3 class="panel-title">
+                    Afternoon
+                  </h3>
                 </div>
+                <div class="panel-body light-grey">
+                  
+                  
+                  <div class="input-group input-group-md">
+                    <input type="text" class="form-control" placeholder="begin" aria-describedby="basic-addon1" id="dt_wd_afternoon_on" name="weekday_afternoon_on">
+                  </div>
+                  <div class="input-group input-group-md" style="padding-top: inherit;">
+                    <input type="text" class="form-control" placeholder="end" aria-describedby="basic-addon2" id="dt_wd_afternoon_off" name="weekday_afternoon_off">
+                  </div>
+                  <div class="input-group input-group-md" style="padding-top: inherit; width: 100%;">
+                    <div id="temp_wd_afternoon_number" style="display: none;">
+                     <input type="number" class="form-control" placeholder="degrees" aria-describedby="basic-addon1" id="temp_wd_afternoon_number_input" min="60" max="85" style="text-align: center;" name="weekday_afternoon_temperature">
+                    </div>
+                    <div id="temp_wd_afternoon_label" style="display: block;  margin-bottom: -34px">
+                     <h2><span class="label label-info" id="temp_wd_afternoon_label_value">&nbsp;</span></h2>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
-        </div>
-    </header>
+            <div class="col-sm-4">
+              <div class="panel panel-default">
+                <div class="panel-heading blueish">
+                  <h3 class="panel-title">
+                    Evening
+                  </h3>
+                </div>
+                <div class="panel-body light-grey">
+                  
+                  
+                  <div class="input-group input-group-md">
+                    <input type="text" class="form-control" placeholder="begin" aria-describedby="basic-addon1" id="dt_wd_evening_on" name="weekday_evening_on">
+                  </div>
+                  <div class="input-group input-group-md" style="padding-top: inherit;">
+                    <input type="text" class="form-control" placeholder="end" aria-describedby="basic-addon2" id="dt_wd_evening_off" name="weekday_evening_off">
+                  </div>
+                  <div class="input-group input-group-md" style="padding-top: inherit; width: 100%;">
+                    <div id="temp_wd_evening_number" style="display: none;">
+                     <input type="number" class="form-control" placeholder="degrees" aria-describedby="basic-addon1" id="temp_wd_evening_number_input" min="60" max="85" style="text-align: center;" name="weekday_evening_temperature">
+                    </div>
+                    <div id="temp_wd_evening_label" style="display: block;  margin-bottom: -34px">
+                     <h2><span class="label label-info" id="temp_wd_evening_label_value">&nbsp;</span></h2>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
 
-    <!-- jQuery -->
-    <script src="js/jquery.js"></script>
+          </div>
+          
+          <!-- end Weekday Row -->
+          
+          <!-- begin Weekend Row -->
+          <div class="row" id="weekend_schedule" style="display: none;">
+            <div class="col-sm-4">
+              <div class="panel panel-default">
+                <div class="panel-heading blueish">
+                  <h3 class="panel-title">
+                    Morning
+                  </h3>
+                </div>
+                <div class="panel-body light-grey">
+                  
+                  
+                  <div class="input-group input-group-md">
+                    <input type="text" class="form-control" placeholder="begin" aria-describedby="basic-addon1" id="dt_we_morning_on">
+                  </div>
+                  <div class="input-group input-group-md" style="padding-top: inherit;">
+                    <input type="text" class="form-control" placeholder="end" aria-describedby="basic-addon2" id="dt_we_morning_off">
+                  </div>
+                  <div class="input-group input-group-md" style="padding-top: inherit; width: 100%;">
+                    <div id="temp_we_morning_number" style="display: none;">
+                     <input type="number" class="form-control" placeholder="degrees" aria-describedby="basic-addon1" id="temp_we_morning_number_input" min="60" max="85" style="text-align: center;">
+                    </div>
+                    <div id="temp_we_morning_label" style="display: block;  margin-bottom: -34px">
+                     <h2><span class="label label-info" id="temp_we_morning_label_value">&nbsp;</span></h2>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-sm-4">
+              <div class="panel panel-default">
+                <div class="panel-heading blueish">
+                  <h3 class="panel-title">
+                    Afternoon
+                  </h3>
+                </div>
+                <div class="panel-body light-grey">
+                  
+                  
+                  <div class="input-group input-group-md">
+                    <input type="text" class="form-control" placeholder="begin" aria-describedby="basic-addon1" id="dt_we_afternoon_on">
+                  </div>
+                  <div class="input-group input-group-md" style="padding-top: inherit;">
+                    <input type="text" class="form-control" placeholder="end" aria-describedby="basic-addon2" id="dt_we_afternoon_off">
+                  </div>
+                  <div class="input-group input-group-md" style="padding-top: inherit; width: 100%;">
+                    <div id="temp_we_afternoon_number" style="display: none;">
+                     <input type="number" class="form-control" placeholder="degrees" aria-describedby="basic-addon1" id="temp_we_afternoon_number_input" min="60" max="85" style="text-align: center;">
+                    </div>
+                    <div id="temp_we_afternoon_label" style="display: block;  margin-bottom: -34px">
+                     <h2><span class="label label-info" id="temp_we_afternoon_label_value">&nbsp;</span></h2>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-sm-4">
+              <div class="panel panel-default">
+                <div class="panel-heading blueish">
+                  <h3 class="panel-title">
+                    Evening
+                  </h3>
+                </div>
+                <div class="panel-body light-grey">
+                  
+                  
+                  <div class="input-group input-group-md">
+                    <input type="text" class="form-control" placeholder="begin" aria-describedby="basic-addon1" id="dt_we_evening_on">
+                  </div>
+                  <div class="input-group input-group-md" style="padding-top: inherit;">
+                    <input type="text" class="form-control" placeholder="end" aria-describedby="basic-addon2" id="dt_we_evening_off">
+                  </div>
+                  <div class="input-group input-group-md" style="padding-top: inherit; width: 100%;">
+                    <div id="temp_we_evening_number" style="display: none;">
+                     <input type="number" class="form-control" placeholder="degrees" aria-describedby="basic-addon1" id="temp_we_evening_number_input" min="60" max="85" style="text-align: center;">
+                    </div>
+                    <div id="temp_we_evening_label" style="display: block;  margin-bottom: -34px">
+                     <h2><span class="label label-info" id="temp_we_evening_label_value">&nbsp;</span></h2>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
 
-    <!-- Bootstrap Core JavaScript -->
-    <script src="js/bootstrap.min.js"></script>
+          </div>
+          <!-- end Weekend Row -->
+          
+          <!-- begin Misc Row -->
+          <div class="row" id="misc" style="display: none;">
+            <div class="col-sm-4">
+              <div class="panel panel-default">
+                <div class="panel-heading blueish">
+                  <h3 class="panel-title">
+                    Mode
+                  </h3>
+                </div>
+                <div class="panel-body light-grey" style="text-align: -webkit-center;">
+                  
+                  
+                  <div class="input-group input-group-md" style="margin-bottom: -20px;">
+                    <h3><span class="label label-danger" id="">H</span>
+                    <input type="checkbox" id="mode_heat" name="my-checkbox" >
+                    </h3>
+                  </div>
+                  <div class="input-group input-group-md" style="margin-bottom: -20px;">
+                    <h3><span class="label label-info" id="">C</span>
+                    <input type="checkbox" id="mode_cool" name="my-checkbox" >
+                    </h3>
+                  </div>
+                  <div class="input-group input-group-md" style="margin-bottom: -23px;">
+                    <h3><span class="label label-default" id="">F</span>
+                    <input type="checkbox" id="mode_fan" name="my-checkbox" >
+                    </h3>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-sm-4">
+              <div class="panel panel-default">
+                <div class="panel-heading blueish">
+                  <h3 class="panel-title">
+                    MongoDB
+                  </h3>
+                </div>
+                <div class="panel-body light-grey">
+                  
+                  
+                  <div class="input-group input-group-md">
+                    <input type="text" class="form-control" placeholder="hostname" aria-describedby="basic-addon1" id="mongo_hostname">
+                  </div>
+                  <div class="input-group input-group-md" style="padding-top: inherit;">
+                    <input type="text" class="form-control" placeholder="db/collection" aria-describedby="basic-addon2" id="mongo_db">
+                  </div>
+                  <div class="input-group input-group-md" style="width: 100%; margin-top: 20px;">
+                    <input type="checkbox" id="check_mongodb" name="my-checkbox" >
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-sm-4">
+              <div class="panel panel-default">
+                <div class="panel-heading blueish">
+                  <h3 class="panel-title">
+                    MQTT
+                  </h3>
+                </div>
+                <div class="panel-body light-grey">
+                  
+                  
+                  <div class="input-group input-group-md">
+                    <input type="text" class="form-control" placeholder="hostname" aria-describedby="basic-addon1" id="mqtt_hostname">
+                  </div>
+                  <div class="input-group input-group-md" style="padding-top: inherit;">
+                    <input type="text" class="form-control" placeholder="topic" aria-describedby="basic-addon2" id="mqtt_topic">
+                  </div>
+                  <div class="input-group input-group-md" style="width: 100%; margin-top: 20px;">
+                    <input type="checkbox" id="check_mqtt" name="my-checkbox" >
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+          </div>
+          <!-- end Misc Row -->
+          
+        </header>
+        
+        <!-- jQuery -->
+        <script src="js/jquery.js">
+        </script>
+        
+        <!-- Bootstrap Core JavaScript -->
+        <script src="js/bootstrap.min.js">
+        </script>
+        
+        <!-- Plugin JavaScript -->
+        <script src="js/jquery.easing.min.js">
+        </script>
+        
+        <!-- Timepicker -->
+        <script src="js/jquery.timepicker.js">
+        </script>
 
-    <!-- Plugin JavaScript -->
-    <script src="js/jquery.easing.min.js"></script>
+        <!-- BootSwitch -->
+        <script src="js/bootstrap-switch.min.js">
+        </script>
 
-    <!-- Datepicker -->
-    <script src="js/bootstrap-timepicker.js"></script>
-    <script>
-        $('#dt_we_morning_on').timepicker();
-    </script>
-</body>
+        <script>
+          $.fn.timepicker.defaults.disableTextInput = true;
+          $.fn.timepicker.defaults.timeFormat = 'G:i';
+          $.fn.timepicker.defaults.maxTime = '24:00';
+          $('#dt_wd_morning_on').timepicker();
+          $('#dt_wd_morning_off').timepicker();
+          $('#dt_wd_afternoon_on').timepicker();
+          $('#dt_wd_afternoon_off').timepicker();
+          $('#dt_wd_evening_on').timepicker();
+          $('#dt_wd_evening_off').timepicker();
+          $('#dt_we_morning_on').timepicker();
+          $('#dt_we_morning_off').timepicker();
+          $('#dt_we_afternoon_on').timepicker();
+          $('#dt_we_afternoon_off').timepicker();
+          $('#dt_we_evening_on').timepicker();
+          $('#dt_we_evening_off').timepicker();
 
-</html>
+          $('#dt_wd_morning_on').on('changeTime',function() { 
+            $('#dt_wd_morning_off').timepicker('option', { minTime : $('#dt_wd_morning_on').val() });
+            updateDb(this);
+          });
+          $('#dt_wd_morning_off').on('changeTime',function() { 
+            $('#dt_wd_afternoon_on').timepicker('option', { minTime : $('#dt_wd_morning_off').val() });
+            updateDb(this);
+          });
+          $('#dt_wd_afternoon_on').on('changeTime',function() { 
+            $('#dt_wd_afternoon_off').timepicker('option', { minTime : $('#dt_wd_afternoon_on').val() });
+            updateDb(this);
+          });
+          $('#dt_wd_afternoon_off').on('changeTime',function() { 
+            $('#dt_wd_evening_on').timepicker('option', { minTime : $('#dt_wd_afternoon_off').val() });
+            updateDb(this);
+          });
+          $('#dt_wd_evening_on').on('changeTime',function() { 
+            $('#dt_wd_evening_off').timepicker('option', { minTime : $('#dt_wd_evening_on').val() });
+            updateDb(this);
+          });
+
+          $('#dt_we_morning_on').on('changeTime',function() { 
+            $('#dt_we_morning_off').timepicker('option', { minTime : $('#dt_we_morning_on').val() });
+            updateDb(this);
+          });
+          $('#dt_we_morning_off').on('changeTime',function() { 
+            $('#dt_we_afternoon_on').timepicker('option', { minTime : $('#dt_we_morning_off').val() });
+            updateDb(this);
+          });
+          $('#dt_we_afternoon_on').on('changeTime',function() { 
+            $('#dt_we_afternoon_off').timepicker('option', { minTime : $('#dt_we_afternoon_on').val() });
+            updateDb(this);
+          });
+          $('#dt_we_afternoon_off').on('changeTime',function() { 
+            $('#dt_we_evening_on').timepicker('option', { minTime : $('#dt_we_afternoon_off').val() });
+            updateDb(this);
+          });
+          $('#dt_we_evening_on').on('changeTime',function() { 
+            $('#dt_we_evening_off').timepicker('option', { minTime : $('#dt_we_evening_on').val() });
+            updateDb(this);
+          });
+        
+          $(document).ready(function() {
+            // Toggle between the label and the input (text).
+            var wto;
+            $("#temp_wd_morning_number").on('input',function() {
+               clearTimeout(wto);
+               //var that = $( this ).children( "input" ).attr('id');
+               var that = $( this ).children( "input" );
+alert(that)
+return false;
+               wto = setTimeout(function() {
+                 $("#temp_wd_morning_label").show();
+                 $("#temp_wd_morning_number").hide()
+                 $("#temp_wd_morning_label_value").html($("#temp_wd_morning_number_input").val());
+                 updateDb(that);
+               }, 1000);
+            });
+            $("#temp_wd_morning_label").click(function(value) {
+              $("#temp_wd_morning_label").hide()
+              $("#temp_wd_morning_number").show()
+              $("#temp_wd_morning_number_input").focus()
+            });
+            $("#temp_wd_morning_number").focusout(function(value) {
+              $("#temp_wd_morning_label").show()
+              $("#temp_wd_morning_number").hide()
+            });
+
+            $("#temp_wd_afternoon_number").on('input',function() {
+               clearTimeout(wto);
+               wto = setTimeout(function() {
+                 $("#temp_wd_afternoon_label").show();
+                 $("#temp_wd_afternoon_number").hide()
+                 $("#temp_wd_afternoon_label_value").html($("#temp_wd_afternoon_number_input").val());
+               }, 1000);
+            });
+            $("#temp_wd_afternoon_label").click(function(value) {
+              $("#temp_wd_afternoon_label").hide()
+              $("#temp_wd_afternoon_number").show()
+              $("#temp_wd_afternoon_number_input").focus()
+            });
+            $("#temp_wd_afternoon_number").focusout(function(value) {
+              $("#temp_wd_afternoon_label").show()
+              $("#temp_wd_afternoon_number").hide()
+            });
+            $("#temp_wd_evening_number").on('input',function() {
+               clearTimeout(wto);
+               wto = setTimeout(function() {
+                 $("#temp_wd_evening_label").show();
+                 $("#temp_wd_evening_number").hide()
+                 $("#temp_wd_evening_label_value").html($("#temp_wd_evening_number_input").val());
+               }, 1000);
+            });
+            $("#temp_wd_evening_label").click(function(value) {
+              $("#temp_wd_evening_label").hide()
+              $("#temp_wd_evening_number").show()
+              $("#temp_wd_evening_number_input").focus()
+            });
+            $("#temp_wd_afternoon_number").focusout(function(value) {
+              $("#temp_wd_afternoon_label").show()
+              $("#temp_wd_afternoon_number").hide()
+            });
+            $("#temp_we_morning_number").on('input',function() {
+               clearTimeout(wto);
+               wto = setTimeout(function() {
+                 $("#temp_we_morning_label").show();
+                 $("#temp_we_morning_number").hide()
+                 $("#temp_we_morning_label_value").html($("#temp_we_morning_number_input").val());
+               }, 1000);
+            });
+            $("#temp_we_morning_label").click(function(value) {
+              $("#temp_we_morning_label").hide()
+              $("#temp_we_morning_number").show()
+              $("#temp_we_morning_number_input").focus()
+            });
+            $("#temp_we_morning_number").focusout(function(value) {
+              $("#temp_we_morning_label").show()
+              $("#temp_we_morning_number").hide()
+            });
+            $("#temp_we_afternoon_number").on('input',function() {
+               clearTimeout(wto);
+               wto = setTimeout(function() {
+                 $("#temp_we_afternoon_label").show();
+                 $("#temp_we_afternoon_number").hide()
+                 $("#temp_we_afternoon_label_value").html($("#temp_we_afternoon_number_input").val());
+               }, 1000);
+            });
+            $("#temp_we_afternoon_label").click(function(value) {
+              $("#temp_we_afternoon_label").hide()
+              $("#temp_we_afternoon_number").show()
+              $("#temp_we_afternoon_number_input").focus()
+            });
+            $("#temp_we_afternoon_number").focusout(function(value) {
+              $("#temp_we_afternoon_label").show()
+              $("#temp_we_afternoon_number").hide()
+            });
+            $("#temp_we_evening_number").on('input',function() {
+               clearTimeout(wto);
+               wto = setTimeout(function() {
+                 $("#temp_we_evening_label").show();
+                 $("#temp_we_evening_number").hide()
+                 $("#temp_we_evening_label_value").html($("#temp_we_evening_number_input").val());
+               }, 1000);
+            });
+            $("#temp_we_evening_label").click(function(value) {
+              $("#temp_we_evening_label").hide()
+              $("#temp_we_evening_number").show()
+              $("#temp_we_evening_number_input").focus()
+            });
+            $("#temp_we_evening_number").focusout(function(value) {
+              $("#temp_we_evening_label").show()
+              $("#temp_we_evening_number").hide()
+            });
+
+            //Bootswitch
+            $("#mode_heat").bootstrapSwitch( {"size":"small"} );
+            $("#mode_cool").bootstrapSwitch( {"size":"small"} );
+            $("#mode_fan").bootstrapSwitch( {"size":"small"} );
+            $("#check_mongodb").bootstrapSwitch( {"size":"small"} );
+            $("#check_mqtt").bootstrapSwitch( {"size":"small"} );
+
+            $('#mode_heat').on('switchChange.bootstrapSwitch', function(event, state) {
+              if(state === true) {
+                if ($("#mode_cool").bootstrapSwitch( 'state' ) === true) {
+                  $("#mode_cool").bootstrapSwitch( 'toggleState' );
+                }
+                if ($("#mode_fan").bootstrapSwitch( 'state' ) === true) {
+                  $("#mode_fan").bootstrapSwitch( 'toggleState' );
+                }
+              }
+            });
+            $('#mode_cool').on('switchChange.bootstrapSwitch', function(event, state) {
+              if(state === true) {
+                if ($("#mode_heat").bootstrapSwitch( 'state' ) === true) {
+                  $("#mode_heat").bootstrapSwitch( 'toggleState' );
+                }
+                if ($("#mode_fan").bootstrapSwitch( 'state' ) === true) {
+                  $("#mode_fan").bootstrapSwitch( 'toggleState' );
+                }
+              }
+            });
+            $('#mode_fan').on('switchChange.bootstrapSwitch', function(event, state) {
+              if(state === true) {
+                if ($("#mode_cool").bootstrapSwitch( 'state' ) === true) {
+                  $("#mode_cool").bootstrapSwitch( 'toggleState' );
+                }
+                if ($("#mode_heat").bootstrapSwitch( 'state' ) === true) {
+                  $("#mode_heat").bootstrapSwitch( 'toggleState' );
+                }
+              }
+            });
+
+          });
+          
+          function showDiv(direction) {
+            var id = parseInt($("#hdn_current").val());
+            
+            var previous_id = $("#hdn_previous").val();
+            var next_id = $("#hdn_next").val();
+            
+            if (direction == 'previous') {
+              if (id == 1) {
+                $("#hdn_previous").val(0);
+                $("#hdn_current").val(1);
+                $("#hdn_next").val(2);
+              }
+              else{
+                $("#hdn_previous").val(parseInt(previous_id) - 1);
+                $("#hdn_next").val(parseInt(next_id) - 1);
+                $("#hdn_current").val(parseInt(id - 1))
+                  id = id - 1;
+              }
+            }
+            if (direction == 'next') {
+              if (id == 4) {
+                $("#hdn_previous").val(2);
+                $("#hdn_current").val(3);
+                $("#hdn_next").val(4);
+              }
+              else{
+                $("#hdn_previous").val(parseInt(previous_id) + 1);
+                $("#hdn_next").val(parseInt(next_id) + 1);
+                $("#hdn_current").val(parseInt(id + 1))
+                  id = id + 1;
+              }
+            }
+            
+            if (id == 1) {
+              $("#weekday_schedule").show()
+              $("#pagination_header").html("Weekday")
+            }
+            else{
+              $("#weekday_schedule").hide()
+            }
+            if (id == 2) {
+              $("#weekend_schedule").show()
+              $("#pagination_header").html("Weekend")
+            }
+            else{
+              $("#weekend_schedule").hide()
+            }
+            if (id == 3) {
+              $("#misc").show()
+              $("#pagination_header").html("Miscellaneous")
+            }
+            else{
+              $("#misc").hide()
+            }
+            
+          }
+        
+          function updateDb(value) {
+alert(value.id);
+              id = $('#'+value.id).attr('name');
+              value = $('#'+value.id).val();
+              $.ajax({
+                method:"POST",
+                url:"processor.php",
+                data: { "configuration":1, "key": id, "value": value}
+              })
+              .success(function(data) { console.log(data); });
+          }
+        </script>
+      </body>
+      
+    </html>
