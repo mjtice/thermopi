@@ -27,28 +27,11 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
         $weather_forecast = queryDb('GET', '/rest/weather/forecast/sixday',false);
         echo json_encode($weather_forecast,JSON_PRETTY_PRINT);
     }
-/*
-    if (isset($_GET['forecast']))
+    if (isset($_GET['cycle_mode']))
     {
-      $dayNumber = $_GET['forecast'];
-      $sql = "select day,icon,min_temp,max_temp from forecast_weather WHERE day = $dayNumber";
-      $row = queryDb('select',$sql);
-      echo $row['icon'].'+'.round($row['min_temp'],0).'+'.round($row['max_temp'],0);
+        $cycle_mode = queryDb('GET', '/rest/configuration?where=conf_key==cycle_mode',false);
+        echo $cycle_mode['_items'][0]['conf_value'];
     }
-
-    if (isset($_GET['current']))
-    {
-      $sql = "select temperature,
-                 pressure,
-                 humidity,
-                 wind_speed,
-                 wind_direction,
-                 sunrise,
-                 sunset from current_weather";
-      $row = queryDb('select',$sql);
-      echo $row['temperature'].'+'.$row['humidity'].'+'.$row['wind_speed'].'+'.$row['pressure'];
-    }
-*/
 }
 
 if($_SERVER['REQUEST_METHOD'] == 'POST') 
@@ -71,6 +54,17 @@ if($_SERVER['REQUEST_METHOD'] == 'POST')
       $json = json_encode($a);
       queryDb('PUT','/rest/configuration/'.$id,$json);
       echo $new_temp;
+    }
+    if (isset($_POST['change_configuration']))
+    {
+      $output = queryDb('GET', '/rest/configuration?where=conf_key=='.$_POST['conf_key'],false);
+      $conf_value = $output['_items'][0]['conf_value'];
+      $id = $output['_items'][0]['_id'];
+      $a = array();
+      $a['conf_key'] = $_POST['conf_key'];
+      $a['conf_value'] = $_POST['conf_value'];
+      $json = json_encode($a);
+      queryDb('PUT','/rest/configuration/'.$id,$json);
     }
 } 
 
