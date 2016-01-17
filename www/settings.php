@@ -445,6 +445,8 @@ $db = new SQLite3($dbFile);
         </script>
 
         <script>
+          // Initialize time picker and update the db
+          // When the time changes for each field.
           $.fn.timepicker.defaults.disableTextInput = true;
           $.fn.timepicker.defaults.timeFormat = 'G:i';
           $.fn.timepicker.defaults.maxTime = '24:00';
@@ -463,44 +465,44 @@ $db = new SQLite3($dbFile);
 
           $('#dt_wd_morning_on').on('changeTime',function() { 
             $('#dt_wd_morning_off').timepicker('option', { minTime : $('#dt_wd_morning_on').val() });
-            updateDb(this);
+            updateDb(this.id);
           });
           $('#dt_wd_morning_off').on('changeTime',function() { 
             $('#dt_wd_afternoon_on').timepicker('option', { minTime : $('#dt_wd_morning_off').val() });
-            updateDb(this);
+            updateDb(this.id);
           });
           $('#dt_wd_afternoon_on').on('changeTime',function() { 
             $('#dt_wd_afternoon_off').timepicker('option', { minTime : $('#dt_wd_afternoon_on').val() });
-            updateDb(this);
+            updateDb(this.id);
           });
           $('#dt_wd_afternoon_off').on('changeTime',function() { 
             $('#dt_wd_evening_on').timepicker('option', { minTime : $('#dt_wd_afternoon_off').val() });
-            updateDb(this);
+            updateDb(this.id);
           });
           $('#dt_wd_evening_on').on('changeTime',function() { 
             $('#dt_wd_evening_off').timepicker('option', { minTime : $('#dt_wd_evening_on').val() });
-            updateDb(this);
+            updateDb(this.id);
           });
 
           $('#dt_we_morning_on').on('changeTime',function() { 
             $('#dt_we_morning_off').timepicker('option', { minTime : $('#dt_we_morning_on').val() });
-            updateDb(this);
+            updateDb(this.id);
           });
           $('#dt_we_morning_off').on('changeTime',function() { 
             $('#dt_we_afternoon_on').timepicker('option', { minTime : $('#dt_we_morning_off').val() });
-            updateDb(this);
+            updateDb(this.id);
           });
           $('#dt_we_afternoon_on').on('changeTime',function() { 
             $('#dt_we_afternoon_off').timepicker('option', { minTime : $('#dt_we_afternoon_on').val() });
-            updateDb(this);
+            updateDb(this.id);
           });
           $('#dt_we_afternoon_off').on('changeTime',function() { 
             $('#dt_we_evening_on').timepicker('option', { minTime : $('#dt_we_afternoon_off').val() });
-            updateDb(this);
+            updateDb(this.id);
           });
           $('#dt_we_evening_on').on('changeTime',function() { 
             $('#dt_we_evening_off').timepicker('option', { minTime : $('#dt_we_evening_on').val() });
-            updateDb(this);
+            updateDb(this.id);
           });
         
           $(document).ready(function() {
@@ -508,10 +510,7 @@ $db = new SQLite3($dbFile);
             var wto;
             $("#temp_wd_morning_number").on('input',function() {
                clearTimeout(wto);
-               //var that = $( this ).children( "input" ).attr('id');
-               var that = $( this ).children( "input" );
-alert(that)
-return false;
+               var that = $( this ).children( "input" ).attr('id');
                wto = setTimeout(function() {
                  $("#temp_wd_morning_label").show();
                  $("#temp_wd_morning_number").hide()
@@ -531,10 +530,12 @@ return false;
 
             $("#temp_wd_afternoon_number").on('input',function() {
                clearTimeout(wto);
+               var that = $( this ).children( "input" ).attr('id');
                wto = setTimeout(function() {
                  $("#temp_wd_afternoon_label").show();
                  $("#temp_wd_afternoon_number").hide()
                  $("#temp_wd_afternoon_label_value").html($("#temp_wd_afternoon_number_input").val());
+                 updateDb(that);
                }, 1000);
             });
             $("#temp_wd_afternoon_label").click(function(value) {
@@ -548,10 +549,12 @@ return false;
             });
             $("#temp_wd_evening_number").on('input',function() {
                clearTimeout(wto);
+               var that = $( this ).children( "input" ).attr('id');
                wto = setTimeout(function() {
                  $("#temp_wd_evening_label").show();
                  $("#temp_wd_evening_number").hide()
                  $("#temp_wd_evening_label_value").html($("#temp_wd_evening_number_input").val());
+                 updateDb(that);
                }, 1000);
             });
             $("#temp_wd_evening_label").click(function(value) {
@@ -565,10 +568,12 @@ return false;
             });
             $("#temp_we_morning_number").on('input',function() {
                clearTimeout(wto);
+               var that = $( this ).children( "input" ).attr('id');
                wto = setTimeout(function() {
                  $("#temp_we_morning_label").show();
                  $("#temp_we_morning_number").hide()
                  $("#temp_we_morning_label_value").html($("#temp_we_morning_number_input").val());
+                 updateDb(that);
                }, 1000);
             });
             $("#temp_we_morning_label").click(function(value) {
@@ -582,10 +587,12 @@ return false;
             });
             $("#temp_we_afternoon_number").on('input',function() {
                clearTimeout(wto);
+               var that = $( this ).children( "input" ).attr('id');
                wto = setTimeout(function() {
                  $("#temp_we_afternoon_label").show();
                  $("#temp_we_afternoon_number").hide()
                  $("#temp_we_afternoon_label_value").html($("#temp_we_afternoon_number_input").val());
+                 updateDb(that);
                }, 1000);
             });
             $("#temp_we_afternoon_label").click(function(value) {
@@ -599,10 +606,12 @@ return false;
             });
             $("#temp_we_evening_number").on('input',function() {
                clearTimeout(wto);
+               var that = $( this ).children( "input" ).attr('id');
                wto = setTimeout(function() {
                  $("#temp_we_evening_label").show();
                  $("#temp_we_evening_number").hide()
                  $("#temp_we_evening_label_value").html($("#temp_we_evening_number_input").val());
+                 updateDb(that);
                }, 1000);
             });
             $("#temp_we_evening_label").click(function(value) {
@@ -615,7 +624,7 @@ return false;
               $("#temp_we_evening_number").hide()
             });
 
-            //Bootswitch
+            //Bootswitch for the cycle_mode
             $("#mode_heat").bootstrapSwitch( {"size":"small"} );
             $("#mode_cool").bootstrapSwitch( {"size":"small"} );
             $("#mode_fan").bootstrapSwitch( {"size":"small"} );
@@ -630,6 +639,7 @@ return false;
                 if ($("#mode_fan").bootstrapSwitch( 'state' ) === true) {
                   $("#mode_fan").bootstrapSwitch( 'toggleState' );
                 }
+                postDb("cycle_mode","heating");
               }
             });
             $('#mode_cool').on('switchChange.bootstrapSwitch', function(event, state) {
@@ -640,6 +650,7 @@ return false;
                 if ($("#mode_fan").bootstrapSwitch( 'state' ) === true) {
                   $("#mode_fan").bootstrapSwitch( 'toggleState' );
                 }
+                postDb("cycle_mode","cooling");
               }
             });
             $('#mode_fan').on('switchChange.bootstrapSwitch', function(event, state) {
@@ -650,8 +661,58 @@ return false;
                 if ($("#mode_heat").bootstrapSwitch( 'state' ) === true) {
                   $("#mode_heat").bootstrapSwitch( 'toggleState' );
                 }
+                postDb("cycle_mode","fan");
               }
             });
+
+            // Mongodb & mqtt
+            $("#mongo_hostname").on('input',function() {
+               clearTimeout(wto);
+               var conf_key = $( this ).attr('id');
+               var conf_value = $( this ).val();
+               wto = setTimeout(function() {
+                 postDb(conf_key, conf_value);
+               }, 1000);
+            });
+            $("#mongo_db").on('input',function() {
+               clearTimeout(wto);
+               var conf_key = $( this ).attr('id');
+               var conf_value = $( this ).val();
+               wto = setTimeout(function() {
+                 postDb(conf_key, conf_value);
+               }, 1000);
+            });
+            $('#check_mongodb').on('switchChange.bootstrapSwitch', function(event, state) {
+              if(state === true) {
+                postDb("mongo_enabled","true");
+              }else{
+                postDb("mongo_enabled","false");
+              }
+            });
+            $("#mqtt_hostname").on('input',function() {
+               clearTimeout(wto);
+               var conf_key = $( this ).attr('id');
+               var conf_value = $( this ).val();
+               wto = setTimeout(function() {
+                 postDb(conf_key, conf_value);
+               }, 1000);
+            });
+            $("#mqtt_topic").on('input',function() {
+               clearTimeout(wto);
+               var conf_key = $( this ).attr('id');
+               var conf_value = $( this ).val();
+               wto = setTimeout(function() {
+                 postDb(conf_key, conf_value);
+               }, 1000);
+            });
+            $('#check_mqtt').on('switchChange.bootstrapSwitch', function(event, state) {
+              if(state === true) {
+                postDb("mqtt_enabled","true");
+              }else{
+                postDb("mqtt_enabled","false");
+              }
+            });
+            
 
           });
           
@@ -712,16 +773,39 @@ return false;
             
           }
         
-          function updateDb(value) {
-alert(value.id);
-              id = $('#'+value.id).attr('name');
-              value = $('#'+value.id).val();
+          function updateDb(id) {
+              var value = $('#'+id).val();
+              var cycle_mode;
+              var conf_key;
+              if (id.match(/(dt_w(d|e))|(temp_w(d|e))/))
+              {
+                $.get("processor.php?cycle_mode=1", function(data) {
+                });
+                $.ajax({
+                  method:"GET",
+                  url:"processor.php",
+                  context: conf_key,
+                  data: { "cycle_mode":1}
+                })
+                .success( function(data) {
+                  cycle_mode = data;
+                  conf_key = id+"_"+cycle_mode;
+                  postDb(conf_key,value);
+                }); 
+              }else{
+console.log(id + ' here ' + value);
+                postDb(id,value);
+              }
+          }
+          function postDb(conf_key,conf_value) {
+console.log(conf_key + ' here ' + conf_value);
               $.ajax({
                 method:"POST",
                 url:"processor.php",
-                data: { "configuration":1, "key": id, "value": value}
+                data: { "change_configuration":1, "conf_key": conf_key, "conf_value": conf_value}
               })
-              .success(function(data) { console.log(data); });
+              .done(function(data) { console.log("finished "+data); })
+              .error(function(data) { console.log("error "+data); });
           }
         </script>
       </body>
