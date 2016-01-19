@@ -187,7 +187,7 @@ $db = new SQLite3($dbFile);
                   <div class="input-group input-group-md" style="padding-top: inherit;">
                     <input type="text" class="form-control" placeholder="end" aria-describedby="basic-addon2" id="dt_wd_morning_off" name="weekday_morning_off">
                   </div>
-                  <div class="input-group input-group-md" style="padding-top: inherit; width: 100%;">
+                  <div id="parent_temp_wd_morning" class="input-group input-group-md" style="padding-top: inherit; width: 100%;">
                     <div id="temp_wd_morning_number" style="display: none;">
                      <input type="number" class="form-control" placeholder="degrees" aria-describedby="basic-addon1" id="temp_wd_morning_number_input" min="60" max="85" style="text-align: center;" name="weekday_morning_temperature">
                     </div>
@@ -214,7 +214,7 @@ $db = new SQLite3($dbFile);
                   <div class="input-group input-group-md" style="padding-top: inherit;">
                     <input type="text" class="form-control" placeholder="end" aria-describedby="basic-addon2" id="dt_wd_afternoon_off" name="weekday_afternoon_off">
                   </div>
-                  <div class="input-group input-group-md" style="padding-top: inherit; width: 100%;">
+                  <div id="parent_temp_wd_afternoon" class="input-group input-group-md" style="padding-top: inherit; width: 100%;">
                     <div id="temp_wd_afternoon_number" style="display: none;">
                      <input type="number" class="form-control" placeholder="degrees" aria-describedby="basic-addon1" id="temp_wd_afternoon_number_input" min="60" max="85" style="text-align: center;" name="weekday_afternoon_temperature">
                     </div>
@@ -241,7 +241,7 @@ $db = new SQLite3($dbFile);
                   <div class="input-group input-group-md" style="padding-top: inherit;">
                     <input type="text" class="form-control" placeholder="end" aria-describedby="basic-addon2" id="dt_wd_evening_off" name="weekday_evening_off">
                   </div>
-                  <div class="input-group input-group-md" style="padding-top: inherit; width: 100%;">
+                  <div id="parent_temp_wd_evening" class="input-group input-group-md" style="padding-top: inherit; width: 100%;">
                     <div id="temp_wd_evening_number" style="display: none;">
                      <input type="number" class="form-control" placeholder="degrees" aria-describedby="basic-addon1" id="temp_wd_evening_number_input" min="60" max="85" style="text-align: center;" name="weekday_evening_temperature">
                     </div>
@@ -275,7 +275,7 @@ $db = new SQLite3($dbFile);
                   <div class="input-group input-group-md" style="padding-top: inherit;">
                     <input type="text" class="form-control" placeholder="end" aria-describedby="basic-addon2" id="dt_we_morning_off">
                   </div>
-                  <div class="input-group input-group-md" style="padding-top: inherit; width: 100%;">
+                  <div id="parent_temp_we_morning" class="input-group input-group-md" style="padding-top: inherit; width: 100%;">
                     <div id="temp_we_morning_number" style="display: none;">
                      <input type="number" class="form-control" placeholder="degrees" aria-describedby="basic-addon1" id="temp_we_morning_number_input" min="60" max="85" style="text-align: center;">
                     </div>
@@ -302,7 +302,7 @@ $db = new SQLite3($dbFile);
                   <div class="input-group input-group-md" style="padding-top: inherit;">
                     <input type="text" class="form-control" placeholder="end" aria-describedby="basic-addon2" id="dt_we_afternoon_off">
                   </div>
-                  <div class="input-group input-group-md" style="padding-top: inherit; width: 100%;">
+                  <div id="parent_temp_we_afternoon" class="input-group input-group-md" style="padding-top: inherit; width: 100%;">
                     <div id="temp_we_afternoon_number" style="display: none;">
                      <input type="number" class="form-control" placeholder="degrees" aria-describedby="basic-addon1" id="temp_we_afternoon_number_input" min="60" max="85" style="text-align: center;">
                     </div>
@@ -329,7 +329,7 @@ $db = new SQLite3($dbFile);
                   <div class="input-group input-group-md" style="padding-top: inherit;">
                     <input type="text" class="form-control" placeholder="end" aria-describedby="basic-addon2" id="dt_we_evening_off">
                   </div>
-                  <div class="input-group input-group-md" style="padding-top: inherit; width: 100%;">
+                  <div id="parent_temp_we_evening" class="input-group input-group-md" style="padding-top: inherit; width: 100%;">
                     <div id="temp_we_evening_number" style="display: none;">
                      <input type="number" class="form-control" placeholder="degrees" aria-describedby="basic-addon1" id="temp_we_evening_number_input" min="60" max="85" style="text-align: center;">
                     </div>
@@ -445,183 +445,70 @@ $db = new SQLite3($dbFile);
         </script>
 
         <script>
-          // Initialize time picker and update the db
-          // When the time changes for each field.
-          $.fn.timepicker.defaults.disableTextInput = true;
-          $.fn.timepicker.defaults.timeFormat = 'G:i';
-          $.fn.timepicker.defaults.maxTime = '24:00';
-          $('#dt_wd_morning_on').timepicker();
-          $('#dt_wd_morning_off').timepicker();
-          $('#dt_wd_afternoon_on').timepicker();
-          $('#dt_wd_afternoon_off').timepicker();
-          $('#dt_wd_evening_on').timepicker();
-          $('#dt_wd_evening_off').timepicker();
-          $('#dt_we_morning_on').timepicker();
-          $('#dt_we_morning_off').timepicker();
-          $('#dt_we_afternoon_on').timepicker();
-          $('#dt_we_afternoon_off').timepicker();
-          $('#dt_we_evening_on').timepicker();
-          $('#dt_we_evening_off').timepicker();
-
-          $('#dt_wd_morning_on').on('changeTime',function() { 
-            $('#dt_wd_morning_off').timepicker('option', { minTime : $('#dt_wd_morning_on').val() });
-            updateDb(this.id);
-          });
-          $('#dt_wd_morning_off').on('changeTime',function() { 
-            $('#dt_wd_afternoon_on').timepicker('option', { minTime : $('#dt_wd_morning_off').val() });
-            updateDb(this.id);
-          });
-          $('#dt_wd_afternoon_on').on('changeTime',function() { 
-            $('#dt_wd_afternoon_off').timepicker('option', { minTime : $('#dt_wd_afternoon_on').val() });
-            updateDb(this.id);
-          });
-          $('#dt_wd_afternoon_off').on('changeTime',function() { 
-            $('#dt_wd_evening_on').timepicker('option', { minTime : $('#dt_wd_afternoon_off').val() });
-            updateDb(this.id);
-          });
-          $('#dt_wd_evening_on').on('changeTime',function() { 
-            $('#dt_wd_evening_off').timepicker('option', { minTime : $('#dt_wd_evening_on').val() });
-            updateDb(this.id);
-          });
-
-          $('#dt_we_morning_on').on('changeTime',function() { 
-            $('#dt_we_morning_off').timepicker('option', { minTime : $('#dt_we_morning_on').val() });
-            updateDb(this.id);
-          });
-          $('#dt_we_morning_off').on('changeTime',function() { 
-            $('#dt_we_afternoon_on').timepicker('option', { minTime : $('#dt_we_morning_off').val() });
-            updateDb(this.id);
-          });
-          $('#dt_we_afternoon_on').on('changeTime',function() { 
-            $('#dt_we_afternoon_off').timepicker('option', { minTime : $('#dt_we_afternoon_on').val() });
-            updateDb(this.id);
-          });
-          $('#dt_we_afternoon_off').on('changeTime',function() { 
-            $('#dt_we_evening_on').timepicker('option', { minTime : $('#dt_we_afternoon_off').val() });
-            updateDb(this.id);
-          });
-          $('#dt_we_evening_on').on('changeTime',function() { 
-            $('#dt_we_evening_off').timepicker('option', { minTime : $('#dt_we_evening_on').val() });
-            updateDb(this.id);
-          });
-        
           $(document).ready(function() {
-            // Toggle between the label and the input (text).
-            var wto;
-            $("#temp_wd_morning_number").on('input',function() {
-               clearTimeout(wto);
-               var that = $( this ).children( "input" ).attr('id');
-               wto = setTimeout(function() {
-                 $("#temp_wd_morning_label").show();
-                 $("#temp_wd_morning_number").hide()
-                 $("#temp_wd_morning_label_value").html($("#temp_wd_morning_number_input").val());
-                 updateDb(that);
-               }, 1000);
-            });
-            $("#temp_wd_morning_label").click(function(value) {
-              $("#temp_wd_morning_label").hide()
-              $("#temp_wd_morning_number").show()
-              $("#temp_wd_morning_number_input").focus()
-            });
-            $("#temp_wd_morning_number").focusout(function(value) {
-              $("#temp_wd_morning_label").show()
-              $("#temp_wd_morning_number").hide()
-            });
+          
+            // Initialize time picker and update the db
+            // When the time changes for each field.
+            $.fn.timepicker.defaults.disableTextInput = true;
+            $.fn.timepicker.defaults.timeFormat = 'G:i';
+            $.fn.timepicker.defaults.maxTime = '24:00';
 
-            $("#temp_wd_afternoon_number").on('input',function() {
-               clearTimeout(wto);
-               var that = $( this ).children( "input" ).attr('id');
-               wto = setTimeout(function() {
-                 $("#temp_wd_afternoon_label").show();
-                 $("#temp_wd_afternoon_number").hide()
-                 $("#temp_wd_afternoon_label_value").html($("#temp_wd_afternoon_number_input").val());
-                 updateDb(that);
-               }, 1000);
+            // Init the dt_wd_ input fields.
+            var stack = [];
+            $('[id^="dt_we_"]').each(function(index) {
+              $('#'+this.id).timepicker();
+              stack.push(this.id);
             });
-            $("#temp_wd_afternoon_label").click(function(value) {
-              $("#temp_wd_afternoon_label").hide()
-              $("#temp_wd_afternoon_number").show()
-              $("#temp_wd_afternoon_number_input").focus()
+            init_dt(stack);
+
+            // Init the dt_we_ input fields.
+            var stack = [];
+            $('[id^="dt_wd_"]').each(function(index) {
+              $('#'+this.id).timepicker();
+              stack.push(this.id);
             });
-            $("#temp_wd_afternoon_number").focusout(function(value) {
-              $("#temp_wd_afternoon_label").show()
-              $("#temp_wd_afternoon_number").hide()
-            });
-            $("#temp_wd_evening_number").on('input',function() {
-               clearTimeout(wto);
-               var that = $( this ).children( "input" ).attr('id');
-               wto = setTimeout(function() {
-                 $("#temp_wd_evening_label").show();
-                 $("#temp_wd_evening_number").hide()
-                 $("#temp_wd_evening_label_value").html($("#temp_wd_evening_number_input").val());
-                 updateDb(that);
-               }, 1000);
-            });
-            $("#temp_wd_evening_label").click(function(value) {
-              $("#temp_wd_evening_label").hide()
-              $("#temp_wd_evening_number").show()
-              $("#temp_wd_evening_number_input").focus()
-            });
-            $("#temp_wd_afternoon_number").focusout(function(value) {
-              $("#temp_wd_afternoon_label").show()
-              $("#temp_wd_afternoon_number").hide()
-            });
-            $("#temp_we_morning_number").on('input',function() {
-               clearTimeout(wto);
-               var that = $( this ).children( "input" ).attr('id');
-               wto = setTimeout(function() {
-                 $("#temp_we_morning_label").show();
-                 $("#temp_we_morning_number").hide()
-                 $("#temp_we_morning_label_value").html($("#temp_we_morning_number_input").val());
-                 updateDb(that);
-               }, 1000);
-            });
-            $("#temp_we_morning_label").click(function(value) {
-              $("#temp_we_morning_label").hide()
-              $("#temp_we_morning_number").show()
-              $("#temp_we_morning_number_input").focus()
-            });
-            $("#temp_we_morning_number").focusout(function(value) {
-              $("#temp_we_morning_label").show()
-              $("#temp_we_morning_number").hide()
-            });
-            $("#temp_we_afternoon_number").on('input',function() {
-               clearTimeout(wto);
-               var that = $( this ).children( "input" ).attr('id');
-               wto = setTimeout(function() {
-                 $("#temp_we_afternoon_label").show();
-                 $("#temp_we_afternoon_number").hide()
-                 $("#temp_we_afternoon_label_value").html($("#temp_we_afternoon_number_input").val());
-                 updateDb(that);
-               }, 1000);
-            });
-            $("#temp_we_afternoon_label").click(function(value) {
-              $("#temp_we_afternoon_label").hide()
-              $("#temp_we_afternoon_number").show()
-              $("#temp_we_afternoon_number_input").focus()
-            });
-            $("#temp_we_afternoon_number").focusout(function(value) {
-              $("#temp_we_afternoon_label").show()
-              $("#temp_we_afternoon_number").hide()
-            });
-            $("#temp_we_evening_number").on('input',function() {
-               clearTimeout(wto);
-               var that = $( this ).children( "input" ).attr('id');
-               wto = setTimeout(function() {
-                 $("#temp_we_evening_label").show();
-                 $("#temp_we_evening_number").hide()
-                 $("#temp_we_evening_label_value").html($("#temp_we_evening_number_input").val());
-                 updateDb(that);
-               }, 1000);
-            });
-            $("#temp_we_evening_label").click(function(value) {
-              $("#temp_we_evening_label").hide()
-              $("#temp_we_evening_number").show()
-              $("#temp_we_evening_number_input").focus()
-            });
-            $("#temp_we_evening_number").focusout(function(value) {
-              $("#temp_we_evening_label").show()
-              $("#temp_we_evening_number").hide()
+            init_dt(stack);
+
+            function init_dt(i) {
+              var max_size = i.length - 1;
+              $.each(i, function( index, value ) {
+                if (index < max_size)
+                {
+                  $("#"+value).on('changeTime',function() {
+                    $('#'+i[index + 1]).timepicker('option', { minTime : $('#'+value).val() });
+                    updateDb(value);
+                  });
+                }
+              });
+            }
+
+            // Toggle between the label and the input (text).
+            $('[id^="parent_temp_"]').each(function(index) {
+              a = $('#'+this.id).find("*").toArray();
+              var div_temp_number = a[0]['id'];
+              var input_temp_number = a[1]['id'];
+              var div_temp_label = a[2]['id'];
+              var span_temp_label_value = a[4]['id']; 
+              var wto;
+              $("#"+div_temp_number).on('input',function() {
+                clearTimeout(wto);
+                var that = $( this ).children( "input" ).attr('id');
+                wto = setTimeout(function() {
+                  $("#"+div_temp_label).show();
+                  $("#"+div_temp_number).hide();
+                  $("#"+span_temp_label_value).html($("#"+input_temp_number).val());
+                  updateDb(that);
+                }, 1000);
+              });
+              $("#"+div_temp_label).click(function(value) {
+                $("#"+div_temp_label).hide()
+                $("#"+div_temp_number).show()
+                $("#"+input_temp_number).focus()
+              });
+              $("#"+div_temp_number).focusout(function(value) {
+                $("#"+div_temp_label).show()
+                $("#"+div_temp_number).hide()
+              });
             });
 
             //Bootswitch for the cycle_mode
@@ -793,18 +680,23 @@ $db = new SQLite3($dbFile);
                   postDb(conf_key,value);
                 }); 
               }else{
-console.log(id + ' here ' + value);
                 postDb(id,value);
               }
           }
           function postDb(conf_key,conf_value) {
-console.log(conf_key + ' here ' + conf_value);
               $.ajax({
                 method:"POST",
                 url:"processor.php",
                 data: { "change_configuration":1, "conf_key": conf_key, "conf_value": conf_value}
               })
-              .done(function(data) { console.log("finished "+data); })
+          }
+          function getConf(conf_key) {
+              $.ajax({
+                method:"GET",
+                url:"processor.php",
+                data: { "get_configuration": 1, "conf_key": conf_key}
+              })
+              .done(function(data) { return data; })
               .error(function(data) { console.log("error "+data); });
           }
         </script>
