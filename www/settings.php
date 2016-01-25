@@ -59,6 +59,9 @@ $db = new SQLite3($dbFile);
   .panel-heading.blueish {
     background-color: #E5EDEF;
   }
+  .panel-heading.redish {
+    background-color: #EFE5E5;
+  }
   .panel-body.light-grey {
     color: #808080;
   }
@@ -169,11 +172,11 @@ $db = new SQLite3($dbFile);
             </div>
           </div>
           <!-- end Pagination Row -->
-          <!-- begin Weekday Row -->
-          <div class="row row-centered" id="weekday_schedule">
+          <!-- begin Weekday Row (heat) -->
+          <div class="row row-centered" id="weekday_schedule_heat" style="display: none;">
             <div class="col-sm-4">
               <div class="panel panel-default">
-                <div class="panel-heading blueish">
+                <div class="panel-heading redish">
                   <h3 class="panel-title">
                     Morning
                   </h3>
@@ -182,17 +185,17 @@ $db = new SQLite3($dbFile);
                   
                   
                   <div class="input-group input-group-md">
-                    <input type="text" class="form-control" placeholder="begin" aria-describedby="basic-addon1" id="dt_wd_morning_on" name="weekday_morning_on">
+                    <input type="text" class="form-control" placeholder="begin" aria-describedby="basic-addon1" id="dt_wd_morning_on_heat">
                   </div>
                   <div class="input-group input-group-md" style="padding-top: inherit;">
-                    <input type="text" class="form-control" placeholder="end" aria-describedby="basic-addon2" id="dt_wd_morning_off" name="weekday_morning_off">
+                    <input type="text" class="form-control" placeholder="end" aria-describedby="basic-addon2" id="dt_wd_morning_off_heat">
                   </div>
-                  <div id="parent_temp_wd_morning" class="input-group input-group-md" style="padding-top: inherit; width: 100%;">
-                    <div id="temp_wd_morning_number" style="display: none;">
-                     <input type="number" class="form-control" placeholder="degrees" aria-describedby="basic-addon1" id="temp_wd_morning_number_input" min="60" max="85" style="text-align: center;" name="weekday_morning_temperature">
+                  <div id="parent_temp_wd_morning_heat" class="input-group input-group-md" style="padding-top: inherit; width: 100%;">
+                    <div id="temp_wd_morning_number_heat" style="display: none;">
+                     <input type="number" class="form-control" placeholder="degrees" aria-describedby="basic-addon1" id="temp_wd_morning_number_input_heat" min="60" max="85" style="text-align: center;">
                     </div>
-                    <div id="temp_wd_morning_label" style="display: block;  margin-bottom: -34px">
-                     <h2><span class="label label-info" id="temp_wd_morning_label_value">&nbsp;</span></h2>
+                    <div id="temp_wd_morning_label_heat" style="display: block;  margin-bottom: -34px">
+                     <h2><span class="label label-info" id="temp_wd_morning_label_value_heat">&nbsp;</span></h2>
                     </div>
                   </div>
                 </div>
@@ -200,7 +203,7 @@ $db = new SQLite3($dbFile);
             </div>
             <div class="col-sm-4">
               <div class="panel panel-default">
-                <div class="panel-heading blueish">
+                <div class="panel-heading redish">
                   <h3 class="panel-title">
                     Afternoon
                   </h3>
@@ -209,17 +212,17 @@ $db = new SQLite3($dbFile);
                   
                   
                   <div class="input-group input-group-md">
-                    <input type="text" class="form-control" placeholder="begin" aria-describedby="basic-addon1" id="dt_wd_afternoon_on" name="weekday_afternoon_on">
+                    <input type="text" class="form-control" placeholder="begin" aria-describedby="basic-addon1" id="dt_wd_afternoon_on_heat">
                   </div>
                   <div class="input-group input-group-md" style="padding-top: inherit;">
-                    <input type="text" class="form-control" placeholder="end" aria-describedby="basic-addon2" id="dt_wd_afternoon_off" name="weekday_afternoon_off">
+                    <input type="text" class="form-control" placeholder="end" aria-describedby="basic-addon2" id="dt_wd_afternoon_off_heat">
                   </div>
-                  <div id="parent_temp_wd_afternoon" class="input-group input-group-md" style="padding-top: inherit; width: 100%;">
-                    <div id="temp_wd_afternoon_number" style="display: none;">
-                     <input type="number" class="form-control" placeholder="degrees" aria-describedby="basic-addon1" id="temp_wd_afternoon_number_input" min="60" max="85" style="text-align: center;" name="weekday_afternoon_temperature">
+                  <div id="parent_temp_wd_afternoon_heat" class="input-group input-group-md" style="padding-top: inherit; width: 100%;">
+                    <div id="temp_wd_afternoon_number_heat" style="display: none;">
+                     <input type="number" class="form-control" placeholder="degrees" aria-describedby="basic-addon1" id="temp_wd_afternoon_number_input_heat" min="60" max="85" style="text-align: center;">
                     </div>
-                    <div id="temp_wd_afternoon_label" style="display: block;  margin-bottom: -34px">
-                     <h2><span class="label label-info" id="temp_wd_afternoon_label_value">&nbsp;</span></h2>
+                    <div id="temp_wd_afternoon_label_heat" style="display: block;  margin-bottom: -34px">
+                     <h2><span class="label label-info" id="temp_wd_afternoon_label_value_heat">&nbsp;</span></h2>
                     </div>
                   </div>
                 </div>
@@ -227,7 +230,7 @@ $db = new SQLite3($dbFile);
             </div>
             <div class="col-sm-4">
               <div class="panel panel-default">
-                <div class="panel-heading blueish">
+                <div class="panel-heading redish">
                   <h3 class="panel-title">
                     Evening
                   </h3>
@@ -236,17 +239,17 @@ $db = new SQLite3($dbFile);
                   
                   
                   <div class="input-group input-group-md">
-                    <input type="text" class="form-control" placeholder="begin" aria-describedby="basic-addon1" id="dt_wd_evening_on" name="weekday_evening_on">
+                    <input type="text" class="form-control" placeholder="begin" aria-describedby="basic-addon1" id="dt_wd_evening_on_heat">
                   </div>
                   <div class="input-group input-group-md" style="padding-top: inherit;">
-                    <input type="text" class="form-control" placeholder="end" aria-describedby="basic-addon2" id="dt_wd_evening_off" name="weekday_evening_off">
+                    <input type="text" class="form-control" placeholder="end" aria-describedby="basic-addon2" id="dt_wd_evening_off_heat">
                   </div>
-                  <div id="parent_temp_wd_evening" class="input-group input-group-md" style="padding-top: inherit; width: 100%;">
-                    <div id="temp_wd_evening_number" style="display: none;">
-                     <input type="number" class="form-control" placeholder="degrees" aria-describedby="basic-addon1" id="temp_wd_evening_number_input" min="60" max="85" style="text-align: center;" name="weekday_evening_temperature">
+                  <div id="parent_temp_wd_evening_heat" class="input-group input-group-md" style="padding-top: inherit; width: 100%;">
+                    <div id="temp_wd_evening_number_heat" style="display: none;">
+                     <input type="number" class="form-control" placeholder="degrees" aria-describedby="basic-addon1" id="temp_wd_evening_number_input_heat" min="60" max="85" style="text-align: center;">
                     </div>
-                    <div id="temp_wd_evening_label" style="display: block;  margin-bottom: -34px">
-                     <h2><span class="label label-info" id="temp_wd_evening_label_value">&nbsp;</span></h2>
+                    <div id="temp_wd_evening_label_heat" style="display: block;  margin-bottom: -34px">
+                     <h2><span class="label label-info" id="temp_wd_evening_label_value_heat">&nbsp;</span></h2>
                     </div>
                   </div>
                 </div>
@@ -256,9 +259,9 @@ $db = new SQLite3($dbFile);
           </div>
           
           <!-- end Weekday Row -->
-          
-          <!-- begin Weekend Row -->
-          <div class="row" id="weekend_schedule" style="display: none;">
+
+           <!-- begin Weekday Row (cool) -->
+          <div class="row row-centered" id="weekday_schedule_cool" style="display: none;">
             <div class="col-sm-4">
               <div class="panel panel-default">
                 <div class="panel-heading blueish">
@@ -270,17 +273,17 @@ $db = new SQLite3($dbFile);
                   
                   
                   <div class="input-group input-group-md">
-                    <input type="text" class="form-control" placeholder="begin" aria-describedby="basic-addon1" id="dt_we_morning_on">
+                    <input type="text" class="form-control" placeholder="begin" aria-describedby="basic-addon1" id="dt_wd_morning_on_cool">
                   </div>
                   <div class="input-group input-group-md" style="padding-top: inherit;">
-                    <input type="text" class="form-control" placeholder="end" aria-describedby="basic-addon2" id="dt_we_morning_off">
+                    <input type="text" class="form-control" placeholder="end" aria-describedby="basic-addon2" id="dt_wd_morning_off_cool">
                   </div>
-                  <div id="parent_temp_we_morning" class="input-group input-group-md" style="padding-top: inherit; width: 100%;">
-                    <div id="temp_we_morning_number" style="display: none;">
-                     <input type="number" class="form-control" placeholder="degrees" aria-describedby="basic-addon1" id="temp_we_morning_number_input" min="60" max="85" style="text-align: center;">
+                  <div id="parent_temp_wd_morning_cool" class="input-group input-group-md" style="padding-top: inherit; width: 100%;">
+                    <div id="temp_wd_morning_number_cool" style="display: none;">
+                     <input type="number" class="form-control" placeholder="degrees" aria-describedby="basic-addon1" id="temp_wd_morning_number_input_cool" min="60" max="85" style="text-align: center;">
                     </div>
-                    <div id="temp_we_morning_label" style="display: block;  margin-bottom: -34px">
-                     <h2><span class="label label-info" id="temp_we_morning_label_value">&nbsp;</span></h2>
+                    <div id="temp_wd_morning_label_cool" style="display: block;  margin-bottom: -34px">
+                     <h2><span class="label label-info" id="temp_wd_morning_label_value_cool">&nbsp;</span></h2>
                     </div>
                   </div>
                 </div>
@@ -297,17 +300,17 @@ $db = new SQLite3($dbFile);
                   
                   
                   <div class="input-group input-group-md">
-                    <input type="text" class="form-control" placeholder="begin" aria-describedby="basic-addon1" id="dt_we_afternoon_on">
+                    <input type="text" class="form-control" placeholder="begin" aria-describedby="basic-addon1" id="dt_wd_afternoon_on_cool">
                   </div>
                   <div class="input-group input-group-md" style="padding-top: inherit;">
-                    <input type="text" class="form-control" placeholder="end" aria-describedby="basic-addon2" id="dt_we_afternoon_off">
+                    <input type="text" class="form-control" placeholder="end" aria-describedby="basic-addon2" id="dt_wd_afternoon_off_cool">
                   </div>
-                  <div id="parent_temp_we_afternoon" class="input-group input-group-md" style="padding-top: inherit; width: 100%;">
-                    <div id="temp_we_afternoon_number" style="display: none;">
-                     <input type="number" class="form-control" placeholder="degrees" aria-describedby="basic-addon1" id="temp_we_afternoon_number_input" min="60" max="85" style="text-align: center;">
+                  <div id="parent_temp_wd_afternoon_cool" class="input-group input-group-md" style="padding-top: inherit; width: 100%;">
+                    <div id="temp_wd_afternoon_number_cool" style="display: none;">
+                     <input type="number" class="form-control" placeholder="degrees" aria-describedby="basic-addon1" id="temp_wd_afternoon_number_input_cool" min="60" max="85" style="text-align: center;">
                     </div>
-                    <div id="temp_we_afternoon_label" style="display: block;  margin-bottom: -34px">
-                     <h2><span class="label label-info" id="temp_we_afternoon_label_value">&nbsp;</span></h2>
+                    <div id="temp_wd_afternoon_label_cool" style="display: block;  margin-bottom: -34px">
+                     <h2><span class="label label-info" id="temp_wd_afternoon_label_value_cool">&nbsp;</span></h2>
                     </div>
                   </div>
                 </div>
@@ -324,17 +327,192 @@ $db = new SQLite3($dbFile);
                   
                   
                   <div class="input-group input-group-md">
-                    <input type="text" class="form-control" placeholder="begin" aria-describedby="basic-addon1" id="dt_we_evening_on">
+                    <input type="text" class="form-control" placeholder="begin" aria-describedby="basic-addon1" id="dt_wd_evening_on_cool">
                   </div>
                   <div class="input-group input-group-md" style="padding-top: inherit;">
-                    <input type="text" class="form-control" placeholder="end" aria-describedby="basic-addon2" id="dt_we_evening_off">
+                    <input type="text" class="form-control" placeholder="end" aria-describedby="basic-addon2" id="dt_wd_evening_off_cool">
                   </div>
-                  <div id="parent_temp_we_evening" class="input-group input-group-md" style="padding-top: inherit; width: 100%;">
-                    <div id="temp_we_evening_number" style="display: none;">
-                     <input type="number" class="form-control" placeholder="degrees" aria-describedby="basic-addon1" id="temp_we_evening_number_input" min="60" max="85" style="text-align: center;">
+                  <div id="parent_temp_wd_evening_cool" class="input-group input-group-md" style="padding-top: inherit; width: 100%;">
+                    <div id="temp_wd_evening_number_cool" style="display: none;">
+                     <input type="number" class="form-control" placeholder="degrees" aria-describedby="basic-addon1" id="temp_wd_evening_number_input_cool" min="60" max="85" style="text-align: center;">
                     </div>
-                    <div id="temp_we_evening_label" style="display: block;  margin-bottom: -34px">
-                     <h2><span class="label label-info" id="temp_we_evening_label_value">&nbsp;</span></h2>
+                    <div id="temp_wd_evening_label_cool" style="display: block;  margin-bottom: -34px">
+                     <h2><span class="label label-info" id="temp_wd_evening_label_value_cool">&nbsp;</span></h2>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+          
+          <!-- end Weekday Row -->
+
+           <!-- begin Weekend Row (heat)-->
+          <div class="row" id="weekend_schedule_heat" style="display: none;">
+            <div class="col-sm-4">
+              <div class="panel panel-default">
+                <div class="panel-heading redish">
+                  <h3 class="panel-title">
+                    Morning
+                  </h3>
+                </div>
+                <div class="panel-body light-grey">
+                  
+                  
+                  <div class="input-group input-group-md">
+                    <input type="text" class="form-control" placeholder="begin" aria-describedby="basic-addon1" id="dt_we_morning_on_heat">
+                  </div>
+                  <div class="input-group input-group-md" style="padding-top: inherit;">
+                    <input type="text" class="form-control" placeholder="end" aria-describedby="basic-addon2" id="dt_we_morning_off_heat">
+                  </div>
+                  <div id="parent_temp_we_morning_heat" class="input-group input-group-md" style="padding-top: inherit; width: 100%;">
+                    <div id="temp_we_morning_number_heat" style="display: none;">
+                     <input type="number" class="form-control" placeholder="degrees" aria-describedby="basic-addon1" id="temp_we_morning_number_input_heat" min="60" max="85" style="text-align: center;">
+                    </div>
+                    <div id="temp_we_morning_label_heat" style="display: block;  margin-bottom: -34px">
+                     <h2><span class="label label-info" id="temp_we_morning_label_value_heat">&nbsp;</span></h2>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-sm-4">
+              <div class="panel panel-default">
+                <div class="panel-heading redish">
+                  <h3 class="panel-title">
+                    Afternoon
+                  </h3>
+                </div>
+                <div class="panel-body light-grey">
+                  
+                  
+                  <div class="input-group input-group-md">
+                    <input type="text" class="form-control" placeholder="begin" aria-describedby="basic-addon1" id="dt_we_afternoon_on_heat">
+                  </div>
+                  <div class="input-group input-group-md" style="padding-top: inherit;">
+                    <input type="text" class="form-control" placeholder="end" aria-describedby="basic-addon2" id="dt_we_afternoon_off_heat">
+                  </div>
+                  <div id="parent_temp_we_afternoon_heat" class="input-group input-group-md" style="padding-top: inherit; width: 100%;">
+                    <div id="temp_we_afternoon_number_heat" style="display: none;">
+                     <input type="number" class="form-control" placeholder="degrees" aria-describedby="basic-addon1" id="temp_we_afternoon_number_input_heat" min="60" max="85" style="text-align: center;">
+                    </div>
+                    <div id="temp_we_afternoon_label_heat" style="display: block;  margin-bottom: -34px">
+                     <h2><span class="label label-info" id="temp_we_afternoon_label_value_heat">&nbsp;</span></h2>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-sm-4">
+              <div class="panel panel-default">
+                <div class="panel-heading redish">
+                  <h3 class="panel-title">
+                    Evening
+                  </h3>
+                </div>
+                <div class="panel-body light-grey">
+                  
+                  
+                  <div class="input-group input-group-md">
+                    <input type="text" class="form-control" placeholder="begin" aria-describedby="basic-addon1" id="dt_we_evening_on_heat">
+                  </div>
+                  <div class="input-group input-group-md" style="padding-top: inherit;">
+                    <input type="text" class="form-control" placeholder="end" aria-describedby="basic-addon2" id="dt_we_evening_off_heat">
+                  </div>
+                  <div id="parent_temp_we_evening_heat" class="input-group input-group-md" style="padding-top: inherit; width: 100%;">
+                    <div id="temp_we_evening_number_heat" style="display: none;">
+                     <input type="number" class="form-control" placeholder="degrees" aria-describedby="basic-addon1" id="temp_we_evening_number_input_heat" min="60" max="85" style="text-align: center;">
+                    </div>
+                    <div id="temp_we_evening_label_heat" style="display: block;  margin-bottom: -34px">
+                     <h2><span class="label label-info" id="temp_we_evening_label_value_heat">&nbsp;</span></h2>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+          <!-- end Weekend Row -->
+        
+          <!-- begin Weekend Row (cool)-->
+          <div class="row" id="weekend_schedule_cool" style="display: none;">
+            <div class="col-sm-4">
+              <div class="panel panel-default">
+                <div class="panel-heading blueish">
+                  <h3 class="panel-title">
+                    Morning
+                  </h3>
+                </div>
+                <div class="panel-body light-grey">
+                  
+                  
+                  <div class="input-group input-group-md">
+                    <input type="text" class="form-control" placeholder="begin" aria-describedby="basic-addon1" id="dt_we_morning_on_cool">
+                  </div>
+                  <div class="input-group input-group-md" style="padding-top: inherit;">
+                    <input type="text" class="form-control" placeholder="end" aria-describedby="basic-addon2" id="dt_we_morning_off_cool">
+                  </div>
+                  <div id="parent_temp_we_morning_cool" class="input-group input-group-md" style="padding-top: inherit; width: 100%;">
+                    <div id="temp_we_morning_number_cool" style="display: none;">
+                     <input type="number" class="form-control" placeholder="degrees" aria-describedby="basic-addon1" id="temp_we_morning_number_input_cool" min="60" max="85" style="text-align: center;">
+                    </div>
+                    <div id="temp_we_morning_label_cool" style="display: block;  margin-bottom: -34px">
+                     <h2><span class="label label-info" id="temp_we_morning_label_value_cool">&nbsp;</span></h2>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-sm-4">
+              <div class="panel panel-default">
+                <div class="panel-heading blueish">
+                  <h3 class="panel-title">
+                    Afternoon
+                  </h3>
+                </div>
+                <div class="panel-body light-grey">
+                  
+                  
+                  <div class="input-group input-group-md">
+                    <input type="text" class="form-control" placeholder="begin" aria-describedby="basic-addon1" id="dt_we_afternoon_on_cool">
+                  </div>
+                  <div class="input-group input-group-md" style="padding-top: inherit;">
+                    <input type="text" class="form-control" placeholder="end" aria-describedby="basic-addon2" id="dt_we_afternoon_off_cool">
+                  </div>
+                  <div id="parent_temp_we_afternoon_cool" class="input-group input-group-md" style="padding-top: inherit; width: 100%;">
+                    <div id="temp_we_afternoon_number_cool" style="display: none;">
+                     <input type="number" class="form-control" placeholder="degrees" aria-describedby="basic-addon1" id="temp_we_afternoon_number_input_cool" min="60" max="85" style="text-align: center;">
+                    </div>
+                    <div id="temp_we_afternoon_label_cool" style="display: block;  margin-bottom: -34px">
+                     <h2><span class="label label-info" id="temp_we_afternoon_label_value_cool">&nbsp;</span></h2>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-sm-4">
+              <div class="panel panel-default">
+                <div class="panel-heading blueish">
+                  <h3 class="panel-title">
+                    Evening
+                  </h3>
+                </div>
+                <div class="panel-body light-grey">
+                  
+                  
+                  <div class="input-group input-group-md">
+                    <input type="text" class="form-control" placeholder="begin" aria-describedby="basic-addon1" id="dt_we_evening_on_cool">
+                  </div>
+                  <div class="input-group input-group-md" style="padding-top: inherit;">
+                    <input type="text" class="form-control" placeholder="end" aria-describedby="basic-addon2" id="dt_we_evening_off_cool">
+                  </div>
+                  <div id="parent_temp_we_evening_cool" class="input-group input-group-md" style="padding-top: inherit; width: 100%;">
+                    <div id="temp_we_evening_number_cool" style="display: none;">
+                     <input type="number" class="form-control" placeholder="degrees" aria-describedby="basic-addon1" id="temp_we_evening_number_input_cool" min="60" max="85" style="text-align: center;">
+                    </div>
+                    <div id="temp_we_evening_label_cool" style="display: block;  margin-bottom: -34px">
+                     <h2><span class="label label-info" id="temp_we_evening_label_value_cool">&nbsp;</span></h2>
                     </div>
                   </div>
                 </div>
@@ -358,19 +536,20 @@ $db = new SQLite3($dbFile);
                   
                   <div class="input-group input-group-md" style="margin-bottom: -20px;">
                     <h3><span class="label label-danger" id="">H</span>
-                    <input type="checkbox" id="mode_heat" name="my-checkbox" >
+                    <input type="checkbox" id="mode_heat">
                     </h3>
                   </div>
                   <div class="input-group input-group-md" style="margin-bottom: -20px;">
                     <h3><span class="label label-info" id="">C</span>
-                    <input type="checkbox" id="mode_cool" name="my-checkbox" >
+                    <input type="checkbox" id="mode_cool">
                     </h3>
                   </div>
                   <div class="input-group input-group-md" style="margin-bottom: -23px;">
                     <h3><span class="label label-default" id="">F</span>
-                    <input type="checkbox" id="mode_fan" name="my-checkbox" >
+                    <input type="checkbox" id="mode_fan">
                     </h3>
                   </div>
+                  <input type="hidden" id="furnace_mode"/>
                 </div>
               </div>
             </div>
@@ -391,7 +570,7 @@ $db = new SQLite3($dbFile);
                     <input type="text" class="form-control" placeholder="db/collection" aria-describedby="basic-addon2" id="mongo_db">
                   </div>
                   <div class="input-group input-group-md" style="width: 100%; margin-top: 20px;">
-                    <input type="checkbox" id="check_mongodb" name="my-checkbox" >
+                    <input type="checkbox" id="check_mongodb">
                   </div>
                 </div>
               </div>
@@ -413,7 +592,7 @@ $db = new SQLite3($dbFile);
                     <input type="text" class="form-control" placeholder="topic" aria-describedby="basic-addon2" id="mqtt_topic">
                   </div>
                   <div class="input-group input-group-md" style="width: 100%; margin-top: 20px;">
-                    <input type="checkbox" id="check_mqtt" name="my-checkbox" >
+                    <input type="checkbox" id="check_mqtt">
                   </div>
                 </div>
               </div>
@@ -446,7 +625,9 @@ $db = new SQLite3($dbFile);
 
         <script>
           $(document).ready(function() {
-          
+            // Get the configuration values and update the inputs
+            getConf();
+
             // Initialize time picker and update the db
             // When the time changes for each field.
             $.fn.timepicker.defaults.disableTextInput = true;
@@ -474,9 +655,10 @@ $db = new SQLite3($dbFile);
               $.each(i, function( index, value ) {
                 if (index < max_size)
                 {
+                  // On the changeTime event we update the db with the new value
                   $("#"+value).on('changeTime',function() {
                     $('#'+i[index + 1]).timepicker('option', { minTime : $('#'+value).val() });
-                    updateDb(value);
+                    postDb(value,$("#"+value).val());
                   });
                 }
               });
@@ -497,7 +679,7 @@ $db = new SQLite3($dbFile);
                   $("#"+div_temp_label).show();
                   $("#"+div_temp_number).hide();
                   $("#"+span_temp_label_value).html($("#"+input_temp_number).val());
-                  updateDb(that);
+                  postDb(that,$("#"+that).val());
                 }, 1000);
               });
               $("#"+div_temp_label).click(function(value) {
@@ -526,7 +708,8 @@ $db = new SQLite3($dbFile);
                 if ($("#mode_fan").bootstrapSwitch( 'state' ) === true) {
                   $("#mode_fan").bootstrapSwitch( 'toggleState' );
                 }
-                postDb("cycle_mode","heating");
+                postDb("cycle_mode","heat");
+                $("#furnace_mode").val("heat");
               }
             });
             $('#mode_cool').on('switchChange.bootstrapSwitch', function(event, state) {
@@ -537,7 +720,8 @@ $db = new SQLite3($dbFile);
                 if ($("#mode_fan").bootstrapSwitch( 'state' ) === true) {
                   $("#mode_fan").bootstrapSwitch( 'toggleState' );
                 }
-                postDb("cycle_mode","cooling");
+                postDb("cycle_mode","cool");
+                $("#furnace_mode").val("cool");
               }
             });
             $('#mode_fan').on('switchChange.bootstrapSwitch', function(event, state) {
@@ -549,6 +733,7 @@ $db = new SQLite3($dbFile);
                   $("#mode_heat").bootstrapSwitch( 'toggleState' );
                 }
                 postDb("cycle_mode","fan");
+                $("#furnace_mode").val("fan");
               }
             });
 
@@ -635,20 +820,22 @@ $db = new SQLite3($dbFile);
                   id = id + 1;
               }
             }
-            
+           
+            // Get the cycle mode so we know whether to show heat or cool
+            mode = $("#furnace_mode").val();
             if (id == 1) {
-              $("#weekday_schedule").show()
+              $("#weekday_schedule_"+mode).show()
               $("#pagination_header").html("Weekday")
             }
             else{
-              $("#weekday_schedule").hide()
+              $("#weekday_schedule_"+mode).hide()
             }
             if (id == 2) {
-              $("#weekend_schedule").show()
+              $("#weekend_schedule_"+mode).show()
               $("#pagination_header").html("Weekend")
             }
             else{
-              $("#weekend_schedule").hide()
+              $("#weekend_schedule_"+mode).hide()
             }
             if (id == 3) {
               $("#misc").show()
@@ -660,29 +847,6 @@ $db = new SQLite3($dbFile);
             
           }
         
-          function updateDb(id) {
-              var value = $('#'+id).val();
-              var cycle_mode;
-              var conf_key;
-              if (id.match(/(dt_w(d|e))|(temp_w(d|e))/))
-              {
-                $.get("processor.php?cycle_mode=1", function(data) {
-                });
-                $.ajax({
-                  method:"GET",
-                  url:"processor.php",
-                  context: conf_key,
-                  data: { "cycle_mode":1}
-                })
-                .success( function(data) {
-                  cycle_mode = data;
-                  conf_key = id+"_"+cycle_mode;
-                  postDb(conf_key,value);
-                }); 
-              }else{
-                postDb(id,value);
-              }
-          }
           function postDb(conf_key,conf_value) {
               $.ajax({
                 method:"POST",
@@ -694,11 +858,76 @@ $db = new SQLite3($dbFile);
               $.ajax({
                 method:"GET",
                 url:"processor.php",
-                data: { "get_configuration": 1, "conf_key": conf_key}
+                data: { "get_configuration": 1}
               })
-              .done(function(data) { return data; })
+              .done(function(data) { callback(data); })
               .error(function(data) { console.log("error "+data); });
           }
+          function callback(data) {
+            var json = JSON.parse(data);
+            var configuration = {};
+            // Get the values of each input from the db
+            $.each(json["_items"], function( key, value ) {
+              conf_key = json["_items"][key]["conf_key"];
+              conf_value = json["_items"][key]["conf_value"];
+              configuration[conf_key] = conf_value;
+            });
+            // Display the appropriate weekday/weekend schedule
+            // Depending on whether we're heating or cooling.
+            var cycle_mode = configuration['cycle_mode'];
+            if (cycle_mode == 'heat') {
+              $("#weekday_schedule_heat").show();
+            } 
+            if (cycle_mode == 'cool') {
+              $("#weekday_schedule_cool").show();
+            } 
+
+            // Set the value of #furnace_mode so we know whether
+            // to show heating or cooling schedules.
+            $("#furnace_mode").val(cycle_mode);
+
+            $('input[type=text]').each(function(){
+              conf_value = configuration[this.id];
+              $("#"+this.id).val(conf_value);
+              $("#"+this.id).text(conf_value);
+            });
+            $('input[type=number]').each(function(){
+              conf_value = configuration[this.id];
+              $("#"+this.id).val(conf_value);
+              $("#"+this.id).text(conf_value);
+            });
+            // Set the temperature SPAN labels
+            $("#temp_wd_morning_label_value_cool").html(configuration["temp_wd_morning_number_input_cool"]);
+            $("#temp_wd_afternoon_label_value_cool").html(configuration["temp_wd_afternoon_number_input_cool"]);
+            $("#temp_wd_evening_label_value_cool").html(configuration["temp_wd_evening_number_input_cool"]);
+            $("#temp_we_morning_label_value_cool").html(configuration["temp_we_morning_number_input_cool"]);
+            $("#temp_we_afternoon_label_value_cool").html(configuration["temp_we_afternoon_number_input_cool"]);
+            $("#temp_we_evening_label_value_cool").html(configuration["temp_we_evening_number_input_cool"]);
+            $("#temp_wd_morning_label_value_heat").html(configuration["temp_wd_morning_number_input_heat"]);
+            $("#temp_wd_afternoon_label_value_heat").html(configuration["temp_wd_afternoon_number_input_heat"]);
+            $("#temp_wd_evening_label_value_heat").html(configuration["temp_wd_evening_number_input_heat"]);
+            $("#temp_we_morning_label_value_heat").html(configuration["temp_we_morning_number_input_heat"]);
+            $("#temp_we_afternoon_label_value_heat").html(configuration["temp_we_afternoon_number_input_heat"]);
+            $("#temp_we_evening_label_value_heat").html(configuration["temp_we_evening_number_input_heat"]);
+            // Flip on the appropriate check boxes
+             
+            if (cycle_mode == 'heat') {
+             $("#mode_heat").bootstrapSwitch( 'toggleState' );
+            }
+            if (cycle_mode == 'cool') {
+             $("#mode_cool").bootstrapSwitch( 'toggleState' );
+            }
+            if (cycle_mode == 'fan') {
+             $("#mode_fan").bootstrapSwitch( 'toggleState' );
+            }
+            if (configuration['mongo_enabled'] == 'true') {
+             $("#check_mongodb").bootstrapSwitch( 'toggleState' );
+            }
+            if (configuration['mqtt_enabled'] == 'true') {
+             $("#check_mqtt").bootstrapSwitch( 'toggleState' );
+            }
+          }
+
         </script>
       </body>
       
