@@ -189,7 +189,7 @@ label, span, div {
         data = JSON.parse(data);
         $.each(data["_items"], function( key, value ) {
           $("#icon_"+value["_id"]).addClass("wi-owm-"+value["icon"]);
-          $("#forecast_"+value["_id"]).html(Math.floor(value["min_temp"])+"|"+Math.floor(value["max_temp"]));
+          $("#forecast_"+value["_id"]).html(Math.floor(value["max_temp"])+"|"+Math.floor(value["min_temp"]));
         });
       });
     });
