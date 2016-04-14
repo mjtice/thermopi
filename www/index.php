@@ -112,6 +112,25 @@
             data+"</h3>";
         $("#current_temp").html(x);
       });
+      
+      // Reload the current temperature regularly
+      var interval = 1500;   //number of mili seconds between each call
+      var refresh = function() {
+        $.ajax({
+          method: "GET",
+          url: "processor.php",
+          data: { temperature_house: "1" }
+        })
+       .done(function(data) {
+          x = "<h3 class=\"brand-heading\" style=\"font-size: 48px; margin-bottom: 10px;\">Current: "+
+            data+"</h3>";
+          $("#current_temp").html(x);
+          setTimeout(function() {
+             refresh();
+          }, interval);
+        });
+       };
+       refresh();
 
       $("#upArrow").click(function(){
         $.ajax({
